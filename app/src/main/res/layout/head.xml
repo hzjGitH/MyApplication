@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<com.example.myapplication.Util.CircleImageView
+    android:layout_width="100dp"
+    android:layout_height="100dp"
+    android:src="@drawable/user"
+    android:layout_gravity="center"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="25dp"
+        android:orientation="horizontal"
+        android:visibility="visible"
+        android:id="@+id/before"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/login"
+            android:text="登陆"
+            android:textSize="20sp"
+            />
+        <View
+            android:layout_width="1dp"
+            android:layout_height="match_parent"
+            android:layout_marginStart="10dp"
+            android:background="@color/blue"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/register"
+            android:layout_marginStart="10dp"
+            android:text="注册"
+            android:textSize="20sp"
+            />
+    </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/after_login"
+        android:text="华志健"
+        android:textSize="20sp"
+        android:visibility="gone"
+        android:layout_gravity="center"/>
+</LinearLayout>

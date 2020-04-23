@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="user_array">
+        <item>学生</item>
+        <item>教师</item>
+        <item>程序员</item>
+        <item>会计</item>
+        <item>公关</item>
+        <item>律师</item>
+        <item>高管</item>
+        <item>其他</item>
+
+    </string-array>
+</resources>

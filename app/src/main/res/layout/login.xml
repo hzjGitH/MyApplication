@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="登陆窗口"
+        android:layout_gravity="center"
+        android:textSize="30sp"
+        android:textColor="@color/black"/>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Username:"
+            android:textSize="18sp"
+            android:textColor="@color/black"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:id="@+id/username"
+            android:hint="用户名"
+            />
+    </LinearLayout>
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="password:"
+            android:textSize="18sp"
+            android:textColor="@color/black"/>
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="150dp"
+            android:layout_height="40dp"
+            android:id="@+id/password"
+            android:inputType="textPassword"
+            android:hint="密码"
+            />
+    </LinearLayout>
+<View
+    android:layout_width="match_parent"
+    android:layout_height="60dp"/>
+</LinearLayout>

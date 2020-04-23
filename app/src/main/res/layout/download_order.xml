@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/downloadlinear"
+    android:layout_marginTop="15dp">
+
+<com.example.myapplication.Util.AutoMarqueeTextView
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_marginStart="10dp"
+    android:text="下载的曲目"
+    android:textSize="18sp"
+    android:gravity="center"
+    android:textColor="@color/black"
+    android:id="@+id/downloadname"/>
+    <SeekBar
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:max="100"
+        
+        android:id="@+id/downloadbar"/>
+    <TextView
+        android:layout_width="30dp"
+        android:layout_height="wrap_content"
+        android:text="0%"
+        android:id="@+id/downloadpercent"
+        />
+</LinearLayout>
