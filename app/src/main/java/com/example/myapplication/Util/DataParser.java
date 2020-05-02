@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.example.myapplication.Bean.Music;
 import com.example.myapplication.comments.PublicBean;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -31,6 +32,26 @@ public class DataParser {
         }catch (JSONException e){
             e.printStackTrace();
         }
+        return musicList;
+    }
+    //用来解析推荐的数据
+    public List<Music> Parser2(Bundle bundle) {
+        Gson gson=new Gson();
+        if (bundle.get("musicinfo").toString()!=null)
+            try {
+                JSONArray jsonArray = new JSONArray(bundle.get("musicinfo").toString());
+                for (int i = 0; i < jsonArray.length(); i++) {
+                    JSONArray jsonArray1 = new JSONArray(jsonArray.get(i).toString());
+                    for (int j=0; j <jsonArray1.length();j++)
+                    {
+                        JSONObject jsonObject = new JSONObject(jsonArray1.get(j).toString());
+                    Music music =gson.fromJson(jsonObject.toString(),Music.class);
+                    musicList.add(music);
+                    }
+                }
+            }catch (JSONException e){
+                e.printStackTrace();
+            }
         return musicList;
     }
 

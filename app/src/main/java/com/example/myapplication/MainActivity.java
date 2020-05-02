@@ -7,7 +7,8 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
@@ -19,6 +20,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -26,6 +28,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,11 +37,13 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.example.myapplication.Adapter.SkinAdapter;
 import com.example.myapplication.Bean.DownloadBean;
 import com.example.myapplication.Bean.Music;
 import com.example.myapplication.Util.Url;
@@ -93,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     Spinner spinner_music;//music类型下拉框
     LinearLayout beforelayout;//未登陆之前的布局
     LinearLayout recommendlayout;
+    LinearLayout tabliner;
     TextView after_login;//成功登陆显示用户名字
     //对应三个不同的Fragment
     private Fragment community_Fragment;
@@ -105,9 +111,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static String info = "";//歌曲名字
     public static String singer = "";//歌手名字
     static String path = "";//路径
+    public static String color="";
     SharedPreferences sharedPreferences;
     SharedPreferences record_play;
-  private   Timer timer;
+    Timer timer;
+    private FragmentTransaction fragmentTransaction;
 
     Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -121,7 +129,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                         if (jsonObject.get("status").toString().equals("true")) {
                             id = jsonObject.getString("id");
-                            String musictype=jsonObject.getString("musictype");
+                            String musictype = jsonObject.getString("musictype");
                             Toast.makeText(MainActivity.this, info, Toast.LENGTH_SHORT).show();
                             username = login_username;
                             beforelayout.setVisibility(View.GONE);
@@ -135,9 +143,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             RecordMap.put("说唱音乐", record_play.getInt("说唱音乐", 0));
                             RecordMap.put("民族音乐", record_play.getInt("民族音乐", 0));
                             RecordMap.put("电子音乐", record_play.getInt("电子音乐", 0));
-                            Log.i("RecordMap",RecordMap.toString());
-                            if(RecordMap.get(musictype)==0)//第一次登陆赋值一个用户注册选择的音乐类型基值20用于推荐音乐
-                                RecordMap.put(musictype,20);
+                            Log.i("RecordMap", RecordMap.toString());
+                            if (RecordMap.get(musictype) == 0)//第一次登陆赋值一个用户注册选择的音乐类型基值20用于推荐音乐
+                                RecordMap.put(musictype, 20);
+                            fragmentTransaction.remove(search_Fragment);
+                            hideFragments(fragmentTransaction);
+                            search_Fragment =new Search_Fragment(handler,MainActivity.this,true);
+                            fragmentTransaction.add(R.id.container, search_Fragment, "search_Fragment");
+                            fragmentTransaction.commit();
                         } else {
                             Toast.makeText(MainActivity.this, info, Toast.LENGTH_SHORT).show();
                         }
@@ -150,10 +163,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     try {
                         JSONObject jsonObject = new JSONObject(bundle1.get("register_info").toString());
                         String info = jsonObject.getString("info");
-
                         Toast.makeText(MainActivity.this, info, Toast.LENGTH_SHORT).show();
-
-
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -162,6 +172,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     songinfo.setText(info);
                     control_play.setImageResource(R.drawable.play);
                     break;
+                case 4:
+                    getWindow().setStatusBarColor(Color.parseColor(color));
+                    navigationView.setBackgroundColor(Color.parseColor(color));
+                    //navigationView.setItemBackgroundResource();
+                    tabliner.setBackgroundColor(Color.parseColor(color));
             }
             return false;
         }
@@ -226,22 +241,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 int toal_time;
                 toal_time = mp.getDuration();//毫秒换成秒
-                String time = Integer.toString(toal_time / 1000);
+
                 seekBar.setMax(toal_time);
-                //  music_time.setText(time+"s");
             }
         });
-//记时器刷新进度条
-        timer = new Timer();
-        TimerTask timerTask = new TimerTask() {
-            @Override
-            public void run() {
-                if (mediaPlayer.isPlaying()) {
-                    seekBar.setProgress(mediaPlayer.getCurrentPosition() / 1000);
-                }
-            }
-        };
-        timer.schedule(timerTask, 0,1000);
+        Timer();//开启计时器
 
         layoutInflater = LayoutInflater.from(MainActivity.this);
         menu.setOnClickListener(new View.OnClickListener() {
@@ -399,6 +403,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void init() {
+        tabliner=findViewById(R.id.tabliner);
         songinfo = findViewById(R.id.songinfo);
         search = findViewById(R.id.search);
         music_log = findViewById(R.id.log);
@@ -426,13 +431,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.item2:
-                        Toast.makeText(MainActivity.this, "主题", Toast.LENGTH_SHORT).show();
+                        ChangeSkinColorPopWin();
                         break;
                     case R.id.item4:
                         Toast.makeText(MainActivity.this, "退出", Toast.LENGTH_SHORT).show();
                         finish();
                         musicServe.onDestroy();
-                        timer.cancel();
+                        //timer.cancel();
                         break;
 
                 }
@@ -440,6 +445,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return true;
             }
         });
+    }
+
+    public void Timer() {
+        //记时器刷新进度条
+         timer = new Timer();
+        TimerTask timerTask = new TimerTask() {
+            @Override
+            public void run() {
+                if (mediaPlayer.isPlaying()) {
+                    seekBar.setMax(mediaPlayer.getDuration() / 1000);
+                    seekBar.setProgress(mediaPlayer.getCurrentPosition() / 1000);
+                }
+            }
+        };
+        timer.schedule(timerTask, 0, 1000);
+    }
+
+    public void closTimer() {
+        timer.cancel();
     }
 
     @Override
@@ -461,7 +485,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     public void setFragment(int index) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+         fragmentTransaction = fragmentManager.beginTransaction();
         hideFragments(fragmentTransaction);
         switch (index) {
             default:
@@ -471,6 +495,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (my_Fragment == null) {
                     my_Fragment = new My_Fragment(handler);
                     fragmentTransaction.add(R.id.container, my_Fragment, "My_Fragment");
+
                 } else {
                     fragmentTransaction.show(my_Fragment);
                 }
@@ -478,7 +503,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case 1:
                 Search.setTextSize(25);
                 if (search_Fragment == null) {
-                    search_Fragment = new Search_Fragment(handler);
+                    search_Fragment = new Search_Fragment(handler,MainActivity.this);
                     fragmentTransaction.add(R.id.container, search_Fragment, "Search_Fragment");
                 } else {
                     fragmentTransaction.show(search_Fragment);
@@ -487,7 +512,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case 2:
                 Community.setTextSize(25);
                 if (community_Fragment == null) {
-                    community_Fragment = new Community_Fragment(MainActivity.this);
+                    community_Fragment = new Community_Fragment(MainActivity.this, this);
                     fragmentTransaction.add(R.id.container, community_Fragment, "Community_Fragment");
                 } else {
                     fragmentTransaction.show(community_Fragment);
@@ -551,6 +576,37 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
+    public void  ChangeSkinColorPopWin(){
+        View popView = View.inflate(MainActivity.this, R.layout.changeskin, null);
+        TextView cancel=popView.findViewById(R.id.cancel);
+        TextView change=popView.findViewById(R.id.change);
+        RecyclerView skin_rec=popView.findViewById(R.id.skin_rec);
+        LinearLayoutManager linearLayoutManager=new LinearLayoutManager(MainActivity.this);
+        linearLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
+        skin_rec.setLayoutManager(linearLayoutManager);
+        skin_rec.setAdapter(new SkinAdapter(MainActivity.this,handler));
+
+        int weight = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels  / 4;
+        final PopupWindow popupWindow = new PopupWindow(popView, weight, height);
+        popupWindow.setAnimationStyle(R.style.popup_ani);
+        popupWindow.setFocusable(true);
+        //点击外部popueWindow消失
+        popupWindow.setOutsideTouchable(true);
+        popupWindow.showAtLocation(popView, Gravity.BOTTOM, 0, 10);
+        change.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+        cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+            }
+        });
+    }
 
     public void RotateAnimation(ImageView view) {
         ObjectAnimator discObjectAnimator = ObjectAnimator.ofFloat(view, "rotation", 0, 360);
@@ -562,10 +618,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         discObjectAnimator.setRepeatMode(ValueAnimator.RESTART);
 
     }
+    
 
     @Override
     protected void onResume() {
         super.onResume();
+        Timer();
         songinfo.setText(info);
         if (mediaPlayer.isPlaying()) {
             control_play.setImageResource(R.drawable.play);
@@ -586,16 +644,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 editor.putString("recentlyList" + i, data);
             }
             editor.apply();
+
         }
-        if (username!=null)
-        {
-            Log.i("record_play","执行存储");
+        if (username != null) {
+            Log.i("record_play", "执行存储");
             SharedPreferences.Editor editor = record_play.edit();
-            for (Map.Entry<String,Integer> map:RecordMap.entrySet()){
-                editor.putInt(map.getKey(),map.getValue());
+            for (Map.Entry<String, Integer> map : RecordMap.entrySet()) {
+                editor.putInt(map.getKey(), map.getValue());
             }
             editor.apply();
         }
+        closTimer();
+
     }
 
     @Override

@@ -6,6 +6,7 @@
     android:layout_width="100dp"
     android:layout_height="100dp"
     android:src="@drawable/user"
+    android:backgroundTintMode="src_over"
     android:layout_gravity="center"/>
     <LinearLayout
         android:layout_width="wrap_content"

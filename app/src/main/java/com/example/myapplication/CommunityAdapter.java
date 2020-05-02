@@ -10,8 +10,6 @@ import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.EditText;
-
-import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -20,18 +18,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
 import com.example.myapplication.Adapter.ImagviewAdapter;
 import com.example.myapplication.Util.Url;
+import com.example.myapplication.View.NineGridTestLayout;
 import com.example.myapplication.comments.PublicBean;
 import com.example.myapplication.comments.Commentsbean;
 import com.example.myapplication.comments.Updata;
 import com.google.gson.Gson;
 import com.lzy.ninegrid.ImageInfo;
-import com.lzy.ninegrid.NineGridView;
-import com.lzy.ninegrid.preview.NineGridViewClickAdapter;
-import com.w4lle.library.NineGridlayout;
-
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -47,7 +41,8 @@ private boolean [] first;
 private Animation animation;
 private Context context;
    private JSONArray photopath;
-   private List<ImageInfo> infolist =new ArrayList<>();
+   private List<ImageInfo> infolist ;
+   private List<String>  list;
 
 
 
@@ -67,6 +62,7 @@ private Context context;
         EditText get_comment;
         ImageView fabiao;
         GridView gridView;
+        NineGridTestLayout layout;
 
         public ViewHolder(View view){
             super(view);
@@ -78,7 +74,8 @@ private Context context;
             commentsview=view.findViewById(R.id.comment_view);
             get_comment=view.findViewById(R.id.get_comment);
             fabiao=view.findViewById(R.id.fabiao);
-            gridView=view.findViewById(R.id.gridview);
+            //gridView=view.findViewById(R.id.gridview);
+            layout=view.findViewById(R.id.grid_layout);
             animation= AnimationUtils.loadAnimation(view.getContext(),R.anim.scale);
         }
     }
@@ -104,15 +101,17 @@ private Context context;
         try {
             if (!publicBean.getPhoto().equals("[]")){
                 System.out.println("->"+holder.getPosition()+publicBean.getPhoto());
-                infolist.clear();
+                infolist =new ArrayList<>();
+                list =new ArrayList<>();
                 photopath=new JSONArray(publicBean.getPhoto());
                 for (int i=0;i<photopath.length();i++){
-                    ImageInfo imageInfo=new ImageInfo();
+                   /* ImageInfo imageInfo=new ImageInfo();
                     imageInfo.setBigImageUrl(Url.url+photopath.get(i).toString());
                     imageInfo.setThumbnailUrl(Url.url+photopath.get(i).toString());
-                    infolist.add(imageInfo);
+                    infolist.add(imageInfo);*/
+                   list.add(Url.url+photopath.get(i).toString());
                 }
-                System.out.println(infolist.toString());
+               /* System.out.println(infolist.toString());
                 if (infolist.size()>3&&infolist.size()<6){
 
                     LinearLayout.LayoutParams params= (LinearLayout.LayoutParams) holder.gridView.getLayoutParams();
@@ -126,10 +125,11 @@ private Context context;
                     params.height=900;
                   //  params.width=holder.gridView.getWidth();
                     holder.gridView.setLayoutParams(params);
-                }
+                }*/
 
-                ImagviewAdapter adapter=new ImagviewAdapter(context,infolist);
-                holder.gridView.setAdapter(adapter);
+               // ImagviewAdapter adapter=new ImagviewAdapter(context,infolist);
+               // holder.gridView.setAdapter(adapter);
+                holder.layout.setUrlList(list);
 
             }
 

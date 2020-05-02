@@ -1,16 +1,19 @@
 package com.example.myapplication;
 
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,17 +28,21 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
+import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
 import com.example.myapplication.Adapter.PictureAdapter;
 import com.example.myapplication.Bean.Picture;
 import com.example.myapplication.Util.BaseUtil;
+import com.example.myapplication.Util.CustomDialog;
 import com.example.myapplication.Util.DataParser;
 import com.example.myapplication.Util.Url;
 import com.example.myapplication.comments.PublicBean;
 import com.google.gson.Gson;
+import com.scrat.app.selectorlibrary.ImageSelector;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +50,7 @@ import org.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -54,6 +62,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
@@ -81,6 +90,8 @@ public class Community_Fragment extends Fragment {
     private PictureAdapter pictureAdapter;
     private List<File> files = new ArrayList<>();
     private CommunityAdapter adapter;
+    Activity activity;
+    List<String> path;
 
     private List<PublicBean> publicBeans = new ArrayList<>();
     private Handler handler = new Handler(new Handler.Callback() {
@@ -115,8 +126,9 @@ public class Community_Fragment extends Fragment {
                     LinearLayoutManager manager = new LinearLayoutManager(context);
                     manager.setOrientation(RecyclerView.VERTICAL);
                     community_rec.setLayoutManager(manager);
+
                     community_rec.setAdapter(adapter);
-                    community_rec.setItemViewCacheSize(5);
+
                     break;
                 case 3:
                     pictureAdapter.notifyDataSetChanged();
@@ -129,8 +141,9 @@ public class Community_Fragment extends Fragment {
         }
     });
 
-    public Community_Fragment(Context context) {
+    public Community_Fragment(Context context, Activity activity) {
         this.context = context;
+        this.activity = activity;
     }
 
     @Override
@@ -138,14 +151,12 @@ public class Community_Fragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.community_fragment, container, false);
         addview = view.findViewById(R.id.add_picture);
-
         picture_rec = view.findViewById(R.id.picture_rec);
         pictureAdapter = new PictureAdapter(pictureList);
         LinearLayoutManager manager = new LinearLayoutManager(view.getContext());
         manager.setOrientation(RecyclerView.HORIZONTAL);
         picture_rec.setLayoutManager(manager);
         picture_rec.setAdapter(pictureAdapter);
-
         community_rec = view.findViewById(R.id.community_recyclerview);
         ImageView publish = view.findViewById(R.id.publish);
         content_text = view.findViewById(R.id.contet_text);
@@ -176,7 +187,9 @@ public class Community_Fragment extends Fragment {
         addview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showPopueWindow();
+              //  showPopueWindow();
+                CustomDialog dialog=new CustomDialog(context,"正在加载");
+                dialog.show();
             }
         });
 
@@ -292,8 +305,16 @@ public class Community_Fragment extends Fragment {
         bt_album.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent i = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(i, Album_requsetcode);
+                Intent intent = new Intent(context, MultiImageSelectorActivity.class);
+                // whether show camera
+                intent.putExtra(MultiImageSelectorActivity.EXTRA_SHOW_CAMERA, false);
+// max select image amount
+                intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_COUNT, 9);
+// select mode (MultiImageSelectorActivity.MODE_SINGLE OR MultiImageSelectorActivity.MODE_MULTI)
+                intent.putExtra(MultiImageSelectorActivity.EXTRA_SELECT_MODE, MultiImageSelectorActivity.MODE_MULTI);
+// default select images (support array list)
+                //  intent.putStringArrayListExtra(MultiImageSelectorActivity.EXTRA_DEFAULT_SELECTED_LIST, defaultDataArray);
+                startActivityForResult(intent, Album_requsetcode);
                 popupWindow.dismiss();
 
             }
@@ -333,7 +354,7 @@ public class Community_Fragment extends Fragment {
     private void takeCamera(int num) {
 
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
+
         if (takePictureIntent.resolveActivity(context.getPackageManager()) != null) {
             // Create the File where the photo should go
             File imagePath = new File(context.getFilesDir(), "images");
@@ -365,14 +386,13 @@ public class Community_Fragment extends Fragment {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             if (requestCode == CAMERA_requestcode) {
                 try {
                     System.out.println("拍摄的图片路径" + contenUri);
                     Picture picture = new Picture();
                     if (index < 7) {
-                        picture.setBitmap(getBitmapFormUri(contenUri));
+                        picture.setBitmap(getBitmapFormUri(contenUri, true));
                         pictureList.add(picture);
                         handler.sendEmptyMessage(3);
                         index++;
@@ -384,31 +404,45 @@ public class Community_Fragment extends Fragment {
                     e.printStackTrace();
                 }
             } else if (requestCode == Album_requsetcode) {
-                try {
-                    Uri uri = data.getData();
-                    System.out.println(uri);
-                    Picture picture = new Picture();
-                    if (index < 7) {
-                        picture.setBitmap(getBitmapFormUri(uri));
-                        pictureList.add(picture);
-                        handler.sendEmptyMessage(3);
-                        index++;
-                        if (index == 8) {
-                            handler.sendEmptyMessage(5);
-                        }
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                List<String> path = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
+                Log.i("selectphoto", path.toString());
+                for (String url : path) {
+                    try {
+                        // System.out.println(uri);
+                        Picture picture = new Picture();
+                        if (index < 7) {
+                            //  Log.i("files","添加成功"+files.size());
+                            picture.setBitmap(getBitmapFormUri(Uri.parse(url), false));
 
+                            pictureList.add(picture);
+                            handler.sendEmptyMessage(3);
+                            index++;
+                            if (index == 8) {
+                                handler.sendEmptyMessage(5);
+                            }
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         }
-
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
-    public Bitmap getBitmapFormUri(Uri uri) throws IOException {
-        InputStream input = getActivity().getContentResolver().openInputStream(uri);
 
+    public Bitmap getBitmapFormUri(Uri uri, boolean iscamera) throws IOException {
+        InputStream input;
+        File file;
+        if (iscamera)
+            input = getActivity().getContentResolver().openInputStream(uri);
+        else {
+            file = new File(uri.toString());
+            input = new FileInputStream(file);
+        }
+        // InputStream input = getActivity().getContentResolver().openInputStream(uri);
+
+        // InputStream input=getActivity().openFileInput(uri.toString());
         //这一段代码是不加载文件到内存中也得到bitmap的真是宽高，主要是设置inJustDecodeBounds为true
         BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
         onlyBoundsOptions.inJustDecodeBounds = true;//不加载到内存
@@ -422,8 +456,8 @@ public class Community_Fragment extends Fragment {
             return null;
 
         //图片分辨率以480x480为标准
-        float hh = 480f;//这里设置高度为800f
-        float ww = 600f;//这里设置宽度为480f
+        float hh = 600f;//这里设置高度为600f
+        float ww = 600f;//这里设置宽度为600f
         //缩放比，由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
         int be = 1;//be=1表示不缩放
         if (originalWidth > originalHeight && originalWidth > ww) {//如果宽度大的话根据宽度固定大小缩放
@@ -438,7 +472,12 @@ public class Community_Fragment extends Fragment {
         bitmapOptions.inSampleSize = be;//设置缩放比例
         bitmapOptions.inDither = true;
         bitmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
-        input = getActivity().getContentResolver().openInputStream(uri);
+        if (iscamera)
+            input = getActivity().getContentResolver().openInputStream(uri);
+        else {
+            file = new File(uri.toString());
+            input = new FileInputStream(file);
+        }
         Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
         input.close();
 
@@ -480,6 +519,7 @@ public class Community_Fragment extends Fragment {
             e.printStackTrace();
         }
         files.add(file);
+        Log.i("files", "添加成功" + files.size());
     }
 
 

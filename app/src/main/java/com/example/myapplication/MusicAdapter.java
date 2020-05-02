@@ -126,7 +126,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
                 //去重
                 Set<Music> set=new HashSet<>(likelist);
                 likelist=new ArrayList<>(set);
-                if (size!=likelist.size())//成功添加喜欢,基数加2
+                if (size!=likelist.size()&&username!=null)//成功添加喜欢,基数加2
                     RecordMap.put(music.getMusictype(),RecordMap.get(music.getMusictype())+2);
                 else
                     Toast.makeText(context,"已存在",Toast.LENGTH_SHORT).show();
@@ -163,7 +163,6 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
                         midcount = MainActivity.RecordMap.get(musicList.get(holder.getPosition()).getMusictype());
                         midcount=midcount+1;
                         MainActivity.RecordMap.put(musicList.get(holder.getPosition()).getMusictype(), midcount);
-
                         Log.i("RecordMap", RecordMap.toString());
                     }
                     if (handler != null)

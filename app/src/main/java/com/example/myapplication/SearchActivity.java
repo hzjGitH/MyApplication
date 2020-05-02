@@ -32,6 +32,7 @@ import okhttp3.Response;
 
 import static com.example.myapplication.MainActivity.JSON;
 import static com.example.myapplication.MainActivity.RecordMap;
+import static com.example.myapplication.MainActivity.username;
 
 //搜索Activity
 public class SearchActivity extends AppCompatActivity {
@@ -54,12 +55,12 @@ public class SearchActivity extends AppCompatActivity {
             searchinfo_rec.setLayoutManager(linearLayoutManager);
             MusicAdapter adapter=new MusicAdapter(searchinfo,SearchActivity.this);
             searchinfo_rec.setAdapter(adapter);
-          /*  if(searchinfo.size()<=10){
+            if(searchinfo.size()<=10&&username!=null){
                 for (Music music:searchinfo){
                     String key=music.getMusictype();
                     RecordMap.put(key,RecordMap.get(key)+2);
                 }
-            }*/
+            }
             return false;
         }
     });

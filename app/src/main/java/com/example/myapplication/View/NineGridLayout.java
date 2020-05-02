@@ -51,7 +51,6 @@ public abstract class NineGridLayout extends ViewGroup {
         mContext = context;
         if (getListSize(mUrlList) == 0) {
             setVisibility(GONE);
-
         }
     }
 
@@ -63,7 +62,7 @@ public abstract class NineGridLayout extends ViewGroup {
     @Override
     protected void onLayout(boolean changed, int left, int top, int right, int bottom) {
         mTotalWidth = right - left;
-        mSingleWidth = (int) ((mTotalWidth - mSpacing * (3 - 1)) / 3);
+        mSingleWidth = (int) ((mTotalWidth - mSpacing * (3 - 1)) / 3);//总宽度减去图片间隔的三分一为图片宽度
         if (mIsFirst) {
             notifyDataSetChanged();
             mIsFirst = false;
@@ -272,7 +271,7 @@ public abstract class NineGridLayout extends ViewGroup {
 
     protected void setOneImageLayoutParams(RatioImageView imageView, int width, int height) {
         imageView.setLayoutParams(new LayoutParams(width, height));
-        imageView.layout(0, 0, width, height);
+        imageView.layout(15, 0, width, height);
 
         LayoutParams params = getLayoutParams();
 //        params.width = width;

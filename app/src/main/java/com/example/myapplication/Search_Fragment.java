@@ -1,39 +1,44 @@
 package com.example.myapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.viewpager.widget.PagerAdapter;
-
 import com.example.myapplication.Adapter.ViewPagerAdapter;
+import com.example.myapplication.Bean.Music;
+import com.example.myapplication.Util.DataParser;
 import com.example.myapplication.Util.Url;
 import com.google.gson.Gson;
 import com.tmall.ultraviewpager.UltraViewPager;
 import com.tmall.ultraviewpager.UltraViewPagerAdapter;
-
 import java.io.IOException;
-import java.net.URL;
-
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
 import static com.example.myapplication.MainActivity.JSON;
+import static com.example.myapplication.MainActivity.RecordMap;
+import static com.example.myapplication.MainActivity.username;
 
 public class Search_Fragment extends Fragment {
    private LinearLayout recomandlayout;//每日推荐
@@ -43,9 +48,36 @@ public class Search_Fragment extends Fragment {
     private LinearLayout  dotHorizontal;
     RecyclerView tuijian_rec;
     Handler handler;
-     Search_Fragment(Handler handler){
+    Context context;
+
+    private List<Music> musicList=new ArrayList<>();
+  public Handler searHandler=new Handler(new Handler.Callback() {
+        @Override
+        public boolean handleMessage(@NonNull Message msg) {
+            Bundle bundle=msg.getData();
+            Log.i("tuijian Data___>",bundle.getString("musicinfo"));
+            musicList=  new DataParser().Parser2(bundle);
+            LinearLayoutManager manager=new LinearLayoutManager(context);
+            manager.setOrientation(RecyclerView.VERTICAL);
+            tuijian_rec.setLayoutManager(manager);
+            MusicAdapter adapter=new MusicAdapter(musicList,handler,context);
+            tuijian_rec.setAdapter(adapter);
+            return false;
+        }
+    });
+
+     Search_Fragment(Handler handler,Context context){
          this.handler=handler;
+         this.context=context;
      }
+    Search_Fragment(Handler handler,Context context,boolean login){
+        this.handler=handler;
+        this.context=context;
+        if (login)
+        GetTuiJian();
+    }
+
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
@@ -94,12 +126,22 @@ public class Search_Fragment extends Fragment {
 
         return view;
     }
-    public static void GetTuiJian(){
+
+
+    public  void GetTuiJian(){
         Gson gson=new Gson();
-        String data= gson.toJson(MainActivity.RecordMap);
+        HashMap<String,Integer> map=new HashMap<>();
+        map.put("Absolute",RecordMap.get("纯音乐"));
+        map.put("Rap",RecordMap.get("说唱音乐"));
+        map.put("Popular",RecordMap.get("流行音乐"));
+        map.put("Electronic",RecordMap.get("电子音乐"));
+        map.put("Rock",RecordMap.get("摇滚音乐"));
+        map.put("Folk",RecordMap.get("民族音乐"));
+        map.put("Classical",RecordMap.get("经典音乐"));
+        String data= gson.toJson(map);
         OkHttpClient okHttpClient=new OkHttpClient();
         RequestBody requestBody=RequestBody.create(JSON,data);
-        Request request=new Request.Builder().post(requestBody).url(Url.url+"").build();
+        Request request=new Request.Builder().post(requestBody).url(Url.url+"login/servlet/MaybeLikeServlet").build();
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -108,7 +150,11 @@ public class Search_Fragment extends Fragment {
 
             @Override
             public void onResponse(Call call, Response response) throws IOException {
-
+                Bundle bundle=new Bundle();
+                bundle.putString("musicinfo",response.body().string());
+                Message message=new Message();
+                message.setData(bundle);
+               searHandler.sendMessage(message);
             }
         });
     }
