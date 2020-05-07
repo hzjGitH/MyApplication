@@ -15,6 +15,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.example.myapplication.Bean.Music;
+import com.example.myapplication.Util.CustomDialog;
 import com.example.myapplication.Util.DataParser;
 import com.example.myapplication.Util.Url;
 
@@ -34,6 +35,7 @@ public class SongsheetFragment extends Fragment {
 RecyclerView music_rec;
 List<Music> musicList=new ArrayList<>();
 Context context;
+CustomDialog dialog;
 
 Handler handler=new Handler(new Handler.Callback() {
     @Override
@@ -45,6 +47,7 @@ Handler handler=new Handler(new Handler.Callback() {
         layoutManager.setOrientation(RecyclerView.VERTICAL);
         MusicAdapter adapter=new MusicAdapter(musicList,context);
         music_rec.setAdapter(adapter);
+        dialog.dismiss();
         return false;
     }
 });
@@ -62,6 +65,8 @@ Handler handler=new Handler(new Handler.Callback() {
         // Inflate the layout for this fragment
         View view= inflater.inflate(R.layout.fragment_songsheet, container, false);
         music_rec=view.findViewById(R.id.music_rec);
+        dialog=new CustomDialog(context,"数据加载中...");
+        dialog.show();
         getmusic(music_type);
         return view;
     }

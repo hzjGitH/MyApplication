@@ -71,6 +71,8 @@ public class MusicServe extends Service {
         }
     }
 
+
+
     //本地音乐的播放
     public void play(MediaPlayer mediaPlayer, List<Localmusic> List, int index, boolean t) {
         this.musicList = null;
@@ -111,7 +113,7 @@ public class MusicServe extends Service {
     //网络音乐调用
     public Bundle nextmusic() {
         Bundle bundle = new Bundle();
-        if (localmusic ==true) {
+        if (localmusic) {
             bundle = nextmusic(1);
         } else {
             if (index != musicList.size() - 1) {
@@ -152,7 +154,6 @@ public class MusicServe extends Service {
                 mediaPlayer.setDataSource(list.get(index).getPath());
                 info = list.get(index).getSongname();
                 singer = list.get(index).getSinger();
-
                 bundle.putString("songname", info);
                 bundle.putString("singer", singer);
                 System.out.println("下一首：" + list.get(index).getPath());

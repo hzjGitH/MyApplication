@@ -16,9 +16,11 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.graphics.drawable.shapes.OvalShape;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
@@ -63,6 +65,7 @@ public class RecordActivity extends AppCompatActivity {
     private Music curr_music;
     String curr;
     String total;
+    boolean userchanger;
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
@@ -107,6 +110,16 @@ public class RecordActivity extends AppCompatActivity {
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Bundle bundle = musicServe.nextmusic();
+                songname.setText(bundle.getString("songname"));
+                singer.setText(bundle.getString("singer"));
+                Toast.makeText(RecordActivity.this, "下一首", Toast.LENGTH_SHORT).show();
+            }
+        });
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+
                 Bundle bundle = musicServe.nextmusic();
                 songname.setText(bundle.getString("songname"));
                 singer.setText(bundle.getString("singer"));
@@ -160,11 +173,36 @@ public class RecordActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser&&mediaPlayer!=null){
+                    Log.i("Progress-----",Integer.toString(progress*1000));
+                    userchanger=fromUser;
+                    mediaPlayer.seekTo(progress*1000);
+
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
 
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
             @Override
             public void run() {
+                if (userchanger){
+                    userchanger=false;
+                    return;
+                }
                 if (mediaPlayer.isPlaying()) {
                     int totaltime = mediaPlayer.getDuration() / 1000;
                     int currtime = mediaPlayer.getCurrentPosition() / 1000;

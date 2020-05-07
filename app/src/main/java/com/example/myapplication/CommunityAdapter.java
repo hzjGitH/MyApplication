@@ -99,10 +99,10 @@ private Context context;
         holder.content1.setText(publicBean.getContent());
         holder.uname.setText(publicBean.getUsername());
         try {
+            list =new ArrayList<>();
             if (!publicBean.getPhoto().equals("[]")){
                 System.out.println("->"+holder.getPosition()+publicBean.getPhoto());
                 infolist =new ArrayList<>();
-                list =new ArrayList<>();
                 photopath=new JSONArray(publicBean.getPhoto());
                 for (int i=0;i<photopath.length();i++){
                    /* ImageInfo imageInfo=new ImageInfo();
@@ -129,9 +129,8 @@ private Context context;
 
                // ImagviewAdapter adapter=new ImagviewAdapter(context,infolist);
                // holder.gridView.setAdapter(adapter);
-                holder.layout.setUrlList(list);
-
             }
+            holder.layout.setUrlList(list);
 
         }catch (JSONException e){
             e.printStackTrace();

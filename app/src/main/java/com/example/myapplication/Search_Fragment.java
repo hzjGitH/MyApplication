@@ -49,7 +49,6 @@ public class Search_Fragment extends Fragment {
     RecyclerView tuijian_rec;
     Handler handler;
     Context context;
-
     private List<Music> musicList=new ArrayList<>();
   public Handler searHandler=new Handler(new Handler.Callback() {
         @Override
@@ -70,13 +69,13 @@ public class Search_Fragment extends Fragment {
          this.handler=handler;
          this.context=context;
      }
-    Search_Fragment(Handler handler,Context context,boolean login){
-        this.handler=handler;
-        this.context=context;
-        if (login)
-        GetTuiJian();
-    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (username!=null)
+            GetTuiJian();
+    }
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,

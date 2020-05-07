@@ -46,6 +46,7 @@ import android.widget.Toast;
 import com.example.myapplication.Adapter.SkinAdapter;
 import com.example.myapplication.Bean.DownloadBean;
 import com.example.myapplication.Bean.Music;
+import com.example.myapplication.Util.CustomDialog;
 import com.example.myapplication.Util.Url;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
@@ -116,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SharedPreferences record_play;
     Timer timer;
     private FragmentTransaction fragmentTransaction;
+    CustomDialog dialog1;
+private boolean userchanger=false;
 
     Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -146,13 +149,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             Log.i("RecordMap", RecordMap.toString());
                             if (RecordMap.get(musictype) == 0)//第一次登陆赋值一个用户注册选择的音乐类型基值20用于推荐音乐
                                 RecordMap.put(musictype, 20);
-                            fragmentTransaction.remove(search_Fragment);
-                            hideFragments(fragmentTransaction);
-                            search_Fragment =new Search_Fragment(handler,MainActivity.this,true);
-                            fragmentTransaction.add(R.id.container, search_Fragment, "search_Fragment");
-                            fragmentTransaction.commit();
+                          search_Fragment.onResume();
+                            dialog1.dismiss();
                         } else {
                             Toast.makeText(MainActivity.this, info, Toast.LENGTH_SHORT).show();
+                            dialog1.dismiss();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -164,6 +165,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         JSONObject jsonObject = new JSONObject(bundle1.get("register_info").toString());
                         String info = jsonObject.getString("info");
                         Toast.makeText(MainActivity.this, info, Toast.LENGTH_SHORT).show();
+                        dialog1.dismiss();
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -177,6 +179,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     navigationView.setBackgroundColor(Color.parseColor(color));
                     //navigationView.setItemBackgroundResource();
                     tabliner.setBackgroundColor(Color.parseColor(color));
+                    break;
             }
             return false;
         }
@@ -238,11 +241,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
-
                 int toal_time;
                 toal_time = mp.getDuration();//毫秒换成秒
-
                 seekBar.setMax(toal_time);
+            }
+        });
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+
+               Bundle bundle= musicServe.nextmusic();
+                Log.i("buuuuuu",bundle.toString());
+              songinfo.setText(bundle.getString("songname")+"-"+bundle.getString("singer"));
             }
         });
         Timer();//开启计时器
@@ -313,6 +323,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if (user_text.getText().toString().isEmpty() && password_text.getText().toString().isEmpty()) {
                     Toast.makeText(MainActivity.this, "帐号和密码不能为空", Toast.LENGTH_SHORT).show();
                 } else {
+                     dialog1=new CustomDialog(MainActivity.this,"登陆中..");
                     login_username = user_text.getText().toString();
                     HashMap<String, String> map = new HashMap<>();
                     map.put("username", login_username);
@@ -328,6 +339,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         @Override
                         public void onFailure(Call call, IOException e) {
                             e.printStackTrace();
+                            dialog1.dismiss();
                         }
 
                         @Override
@@ -385,6 +397,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             if (!password.equals(repeat)) {
                                 Toast.makeText(MainActivity.this, "两次密码不一致", Toast.LENGTH_SHORT).show();
                             } else {
+                                dialog1=new CustomDialog(MainActivity.this,"注册中...");
                                 RegisterUser(user, password, usertype, musictype);//发送注册信息
                             }
                         } else {
@@ -426,10 +439,33 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Myself.setOnClickListener(this);
         Search.setOnClickListener(this);
         setFragment(1);
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser&&mediaPlayer!=null){
+                    Log.i("Progress-----",Integer.toString(progress*1000));
+                    userchanger=fromUser;
+                    mediaPlayer.seekTo(progress*1000);
+
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
+                    case R.id.item1:
+                                break;
                     case R.id.item2:
                         ChangeSkinColorPopWin();
                         break;
@@ -439,7 +475,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         musicServe.onDestroy();
                         //timer.cancel();
                         break;
-
+                    case R.id.item5:
+                        ShowLoginDialog();
+                        break;
+                    default:
+                        break;
                 }
 
                 return true;
@@ -453,6 +493,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         TimerTask timerTask = new TimerTask() {
             @Override
             public void run() {
+                if (userchanger){
+                    userchanger=false;
+                    return;
+                }
                 if (mediaPlayer.isPlaying()) {
                     seekBar.setMax(mediaPlayer.getDuration() / 1000);
                     seekBar.setProgress(mediaPlayer.getCurrentPosition() / 1000);
@@ -563,6 +607,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                dialog1.dismiss();
             }
 
             @Override
@@ -624,6 +669,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         Timer();
+        info=info+"-"+singer;
         songinfo.setText(info);
         if (mediaPlayer.isPlaying()) {
             control_play.setImageResource(R.drawable.play);

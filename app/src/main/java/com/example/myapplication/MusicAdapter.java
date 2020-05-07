@@ -169,6 +169,9 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
                         handler.sendEmptyMessage(3);//更新播放信息
                     if (!recentlyList.contains(musicList.get(holder.getPosition()))) {
                         recentlyList.add(musicList.get(holder.getPosition()));
+                        //去重
+                        Set<Music> set=new HashSet<>(recentlyList);
+                        recentlyList=new ArrayList<>(set);
                         Message message = new Message();
                         message.what = 2;
                         myhandle.sendMessage(message);//通知更新历史播放数据

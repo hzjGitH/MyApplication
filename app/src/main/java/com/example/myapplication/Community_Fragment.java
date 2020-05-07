@@ -4,6 +4,7 @@ package com.example.myapplication;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -32,8 +33,8 @@ import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
-import com.bumptech.glide.Glide;
 import com.example.myapplication.Adapter.PictureAdapter;
 import com.example.myapplication.Bean.Picture;
 import com.example.myapplication.Util.BaseUtil;
@@ -42,11 +43,10 @@ import com.example.myapplication.Util.DataParser;
 import com.example.myapplication.Util.Url;
 import com.example.myapplication.comments.PublicBean;
 import com.google.gson.Gson;
-import com.scrat.app.selectorlibrary.ImageSelector;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -61,7 +61,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import me.nereo.multi_image_selector.MultiImageSelectorActivity;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -69,7 +68,6 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
-
 import static android.app.Activity.RESULT_OK;
 import static com.example.myapplication.MainActivity.JSON;
 import static com.example.myapplication.MainActivity.username;
@@ -78,6 +76,7 @@ import static com.example.myapplication.MainActivity.username;
 public class Community_Fragment extends Fragment {
     private RecyclerView community_rec;
     private RecyclerView picture_rec;
+    SwipeRefreshLayout refreshLayout;
     private EditText content_text;
     private Context context;
     private List<Picture> pictureList = new ArrayList<>();
@@ -92,7 +91,9 @@ public class Community_Fragment extends Fragment {
     private CommunityAdapter adapter;
     Activity activity;
     List<String> path;
-
+    private  CustomDialog dialog;
+  private   SharedPreferences sharedPreferences;
+    private  SharedPreferences.Editor editor;
     private List<PublicBean> publicBeans = new ArrayList<>();
     private Handler handler = new Handler(new Handler.Callback() {
         @Override
@@ -111,8 +112,10 @@ public class Community_Fragment extends Fragment {
                             pictureList.clear();
                             pictureAdapter.notifyDataSetChanged();
                             addview.setVisibility(View.VISIBLE);
+                            dialog.dismiss();
                         } else {
                             Toast.makeText(context, "发表失败", Toast.LENGTH_SHORT).show();
+                            dialog.dismiss();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -122,20 +125,17 @@ public class Community_Fragment extends Fragment {
                     Bundle bundle1 = msg.getData();
                     publicBeans = new DataParser().PublicParser(bundle1);
                     adapter = new CommunityAdapter(publicBeans, context);
-
                     LinearLayoutManager manager = new LinearLayoutManager(context);
                     manager.setOrientation(RecyclerView.VERTICAL);
                     community_rec.setLayoutManager(manager);
-
                     community_rec.setAdapter(adapter);
-
+                    dialog.dismiss();
                     break;
                 case 3:
                     pictureAdapter.notifyDataSetChanged();
                     break;
                 case 5:
                     addview.setVisibility(View.GONE);//隐藏添加照片
-
             }
             return false;
         }
@@ -149,9 +149,12 @@ public class Community_Fragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        sharedPreferences= getActivity().getSharedPreferences("communityPublic",Context.MODE_PRIVATE);
         View view = inflater.inflate(R.layout.community_fragment, container, false);
         addview = view.findViewById(R.id.add_picture);
         picture_rec = view.findViewById(R.id.picture_rec);
+        refreshLayout=view.findViewById(R.id.refreshlayout);
+        refreshLayout.setColorSchemeColors(getResources().getColor(R.color.brown));
         pictureAdapter = new PictureAdapter(pictureList);
         LinearLayoutManager manager = new LinearLayoutManager(view.getContext());
         manager.setOrientation(RecyclerView.HORIZONTAL);
@@ -161,8 +164,16 @@ public class Community_Fragment extends Fragment {
         ImageView publish = view.findViewById(R.id.publish);
         content_text = view.findViewById(R.id.contet_text);
         //content_text.clearFocus();
-        GetPublicInfo();
-
+        dialog=new CustomDialog(context,"数据获取中");
+        dialog.show();
+        int size= sharedPreferences.getInt("length",0);
+        Log.i("size---->",Integer.toString(size));
+        if (size==0) {
+            GetPublicInfo();
+        }
+        else {
+            GetLocalInfo(size);
+        }
         publish.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -176,6 +187,8 @@ public class Community_Fragment extends Fragment {
                 } else if (content.equals("")) {
                     Toast.makeText(context, "请不要发布空白内容", Toast.LENGTH_SHORT).show();
                 } else {
+                     dialog=new CustomDialog(context,"发表中..");
+                    dialog.show();
                     Map<String, String> map = new HashMap<>();
                     map.put("username", username);
                     map.put("content", content);
@@ -187,37 +200,34 @@ public class Community_Fragment extends Fragment {
         addview.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              //  showPopueWindow();
-                CustomDialog dialog=new CustomDialog(context,"正在加载");
-                dialog.show();
+                showPopueWindow();
+            }
+        });
+        refreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                refreshLayout.setRefreshing(false);
+                GetPublicInfo();
             }
         });
 
         return view;
     }
-
-    private void PublicInfo(String usename, String content, String time) {
-        OkHttpClient okHttpClient = new OkHttpClient();
-        Map<String, String> map = new HashMap<>();
-        map.put("username", usename);
-        map.put("content", content);
-        map.put("time", time);
-        Gson gson = new Gson();
-        RequestBody requestBody = RequestBody.create(JSON, gson.toJson(map));
-        Request request = new Request.Builder().post(requestBody).url(Url.url + "community/PublishServlet").build();
-        okHttpClient.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
+    private void GetLocalInfo(int size){
+        if (size!=0){
+            JSONArray jsonArray=new JSONArray();
+            for (int i=0;i<size;i++){
+                jsonArray.put(sharedPreferences.getString("publicBean"+i,null));
             }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-
-            }
-        });
+            Log.i("LocalInfo",jsonArray.toString());
+            Bundle bundle=new Bundle();
+            bundle.putString("getpublicinfo",jsonArray.toString());
+            Message msg=new Message();
+            msg.setData(bundle);
+            msg.what=2;
+            handler.sendMessage(msg);
+        }
     }
-
     private void GetPublicInfo() {
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().get().url(Url.url + "community/GetAllPublicServlet").build();
@@ -225,6 +235,7 @@ public class Community_Fragment extends Fragment {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
+                dialog.dismiss();
             }
 
             @Override
@@ -271,6 +282,7 @@ public class Community_Fragment extends Fragment {
                 Toast.makeText(context, "连接服务器失败", Toast.LENGTH_SHORT).show();
                 Looper.loop();
                 call.cancel();
+                dialog.dismiss();
             }
 
             @Override
@@ -405,7 +417,7 @@ public class Community_Fragment extends Fragment {
                 }
             } else if (requestCode == Album_requsetcode) {
                 List<String> path = data.getStringArrayListExtra(MultiImageSelectorActivity.EXTRA_RESULT);
-                Log.i("selectphoto", path.toString());
+                Log.i("selectPhoto", path.toString());
                 for (String url : path) {
                     try {
                         // System.out.println(uri);
@@ -441,7 +453,6 @@ public class Community_Fragment extends Fragment {
             input = new FileInputStream(file);
         }
         // InputStream input = getActivity().getContentResolver().openInputStream(uri);
-
         // InputStream input=getActivity().openFileInput(uri.toString());
         //这一段代码是不加载文件到内存中也得到bitmap的真是宽高，主要是设置inJustDecodeBounds为true
         BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
@@ -522,5 +533,18 @@ public class Community_Fragment extends Fragment {
         Log.i("files", "添加成功" + files.size());
     }
 
-
+    @Override
+    public void onStop() {
+        super.onStop();
+        editor=sharedPreferences.edit();
+        Gson gson = new Gson();
+        editor.putInt("length",publicBeans.size());
+        int i=0;
+        for (PublicBean publicBean:publicBeans){
+            editor.putString("publicBean"+i,gson.toJson(publicBean));
+            i+=1;
+        }
+        editor.apply();
+        Log.i("CommunityFragment","已经存储");
+    }
 }

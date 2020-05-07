@@ -25,6 +25,8 @@ public class LoaclMusicUtil {
             if (name.contains("-")) {
                 String[] str = name.split("-");
                 songname = str[1];
+                int index=songname.indexOf(".");
+                songname=songname.substring(0,index);
             } else {
                 songname=name;
             }
