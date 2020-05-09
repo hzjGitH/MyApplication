@@ -3,10 +3,13 @@ package com.example.myapplication;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -38,6 +41,8 @@ import static com.example.myapplication.MainActivity.username;
 public class MusicCommentsActivity extends AppCompatActivity {
     TextView songname;
     TextView singer;
+    ImageView back;
+    LinearLayout titlelayout;
     ImageView emptyview;
     EditText content;
     ImageView publish;
@@ -73,6 +78,8 @@ public class MusicCommentsActivity extends AppCompatActivity {
         System.out.println("comments" + comments);
         songname = findViewById(R.id.songname);
         singer = findViewById(R.id.singer);
+        titlelayout=findViewById(R.id.titlelayout);
+        back=findViewById(R.id.back);
         emptyview = findViewById(R.id.Empty);
         commentsview = findViewById(R.id.music_comments);
         content = findViewById(R.id.contet_text);
@@ -127,5 +134,12 @@ public class MusicCommentsActivity extends AppCompatActivity {
         });
     }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
+        String color= sharedPreferences.getString("newcolor","#fff");
+        getWindow().setStatusBarColor(Color.parseColor(color));
+        titlelayout.setBackgroundColor(Color.parseColor(color));
+    }
 }

@@ -5,11 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.example.myapplication.Bean.Music;
@@ -33,6 +36,7 @@ import okhttp3.Response;
 public class RankActivity extends AppCompatActivity {
 TextView titleview;
 RecyclerView rank_rec;
+LinearLayout titlelayout;
 List<Music>  musicList =new ArrayList<>();
 
 Handler handler=new Handler(new Handler.Callback() {
@@ -75,6 +79,7 @@ Handler handler=new Handler(new Handler.Callback() {
         titleview=findViewById(R.id.title);
         titleview.setText("排行榜");
         rank_rec=findViewById(R.id.rank_rec);
+        titlelayout=findViewById(R.id.titlelayout);
         ImageView back=findViewById(R.id.back);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -103,5 +108,14 @@ Handler handler=new Handler(new Handler.Callback() {
                 handler.sendMessage(message);
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
+        String color= sharedPreferences.getString("newcolor","#fff");
+        getWindow().setStatusBarColor(Color.parseColor(color));
+        titlelayout.setBackgroundColor(Color.parseColor(color));
     }
 }

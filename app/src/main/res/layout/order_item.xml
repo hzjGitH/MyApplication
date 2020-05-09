@@ -18,12 +18,14 @@
             android:text="用户名"
             android:textSize="20sp"
             android:id="@+id/uname"
+            android:layout_marginStart="10dp"
             android:layout_toEndOf="@+id/user_view"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="20sp"
+            android:layout_marginStart="10dp"
             android:id="@+id/time"
             android:layout_below="@+id/uname"
             android:layout_toEndOf="@+id/user_view"/>

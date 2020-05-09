@@ -4,6 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:orientation="vertical"
     tools:context=".AboutMyActivity">
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="#D1EEEE">
+       <com.example.myapplication.Util.CircleImageView
+           android:layout_width="100dp"
+           android:layout_height="100dp"
+           android:src="@drawable/user"
+           android:layout_centerInParent="true"
+           />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/user"
+            android:text="user"
+            android:textSize="23sp"
+            android:textColor="@color/black"
+            android:layout_alignParentBottom="true"
+            android:layout_centerInParent="true"
 
+            />
+    </RelativeLayout>
+<TextView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="15dp"
+    android:id="@+id/textview"
+    android:text="请您先登陆"
+    android:gravity="center"
+    android:textSize="20sp"
+    android:textColor="@color/black"/>
 </LinearLayout>

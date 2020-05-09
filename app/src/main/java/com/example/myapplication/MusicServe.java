@@ -30,7 +30,7 @@ public class MusicServe extends Service {
     List<Localmusic> list;
     int index;
 
-    boolean localmusic = false;
+   public static boolean localmusic = false;
 
     public MusicServe() {
 
@@ -175,7 +175,7 @@ public class MusicServe extends Service {
     //网络部分调用
     public Bundle premusic() {
         Bundle bundle = new Bundle();
-        if (localmusic==true) {
+        if (localmusic) {
             bundle = premusic(1);
         } else {
             if (index != 0) {

@@ -9,14 +9,16 @@ import androidx.viewpager.widget.PagerAdapter;
 
 import com.bumptech.glide.Glide;
 import com.example.myapplication.R;
+import com.example.myapplication.Util.Url;
+
 //主页Viewpager适配器
 public class ViewPagerAdapter extends PagerAdapter {
         private String[] resIds = {
-                "http://192.168.0.101:8080/myproject/viewpage/1.jpg",
-                "http://192.168.0.101:8080/myproject/viewpage/2.jpg",
-                "http://192.168.0.101:8080/myproject/viewpage/3.jpg",
-                "http://192.168.0.101:8080/myproject/viewpage/4.jpg",
-                "http://192.168.0.101:8080/myproject/viewpage/5.jpg",
+                Url.url+"viewpage/1.jpg",
+                Url.url+"viewpage/2.jpg",
+                Url.url+"viewpage/3.jpg",
+                Url.url+"viewpage/4.jpg",
+                Url.url+"viewpage/5.jpg",
         };
 
         private Context context ;

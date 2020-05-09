@@ -7,10 +7,13 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TabHost;
 import android.widget.TableLayout;
 import android.widget.TextView;
@@ -28,6 +31,7 @@ TextView titleview;
     List<Fragment> fragments;
 ViewPager viewPager;
 ImageView back;
+LinearLayout titlelayout;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,7 +39,7 @@ ImageView back;
         titleview=findViewById(R.id.title);
         titleview.setText("歌单");
         tabLayout=findViewById(R.id.tablelayout);
-
+        titlelayout=findViewById(R.id.titlelayout);
         viewPager=findViewById(R.id.music_vp);
         mtitle=new ArrayList<>();
         mtitle.add("流行");
@@ -81,12 +85,21 @@ ImageView back;
         tabLayout.addTab(tabLayout.newTab().setText("Rap"));
         tabLayout.addTab(tabLayout.newTab().setText("纯音乐"));*/
 
-        ImageView back=findViewById(R.id.back);
+         back=findViewById(R.id.back);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 finish();
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
+       String color= sharedPreferences.getString("newcolor","#fff");
+        getWindow().setStatusBarColor(Color.parseColor(color));
+        titlelayout.setBackgroundColor(Color.parseColor(color));
     }
 }

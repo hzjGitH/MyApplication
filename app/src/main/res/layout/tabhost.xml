@@ -24,13 +24,15 @@
             android:layout_weight="1"
             android:id="@+id/my"
             android:text="我的"
-            android:textSize="20sp"/>
+            android:textSize="20sp"
+            android:textColor="@color/black"/>
         <TextView
             android:layout_width="0dp"
             android:layout_weight="1"
             android:layout_height="wrap_content"
             android:id="@+id/find"
             android:text="发现"
+            android:textColor="@color/black"
             android:textSize="20sp"/>
         <TextView
             android:layout_width="0dp"
@@ -38,6 +40,7 @@
             android:layout_weight="1"
             android:id="@+id/community"
             android:text="社区"
+            android:textColor="@color/black"
             android:textSize="20sp"/>
     </LinearLayout>
     <ImageView

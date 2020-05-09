@@ -69,7 +69,7 @@ import okhttp3.Response;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     public static final MediaType JSON = MediaType.parse("application/json;charset=utf-8");
-    public static String username = null;//用户名字
+    public static String username =null;//用户名字
     public static String id = null;//用户id
     public static List<Music> recentlyList = new ArrayList<>();
     public static List<Music> likelist = new ArrayList<>();
@@ -204,6 +204,7 @@ private boolean userchanger=false;
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        username=null;
         if ((checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) &&
                 (checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
                 && (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
@@ -324,6 +325,7 @@ private boolean userchanger=false;
                     Toast.makeText(MainActivity.this, "帐号和密码不能为空", Toast.LENGTH_SHORT).show();
                 } else {
                      dialog1=new CustomDialog(MainActivity.this,"登陆中..");
+                     dialog1.show();
                     login_username = user_text.getText().toString();
                     HashMap<String, String> map = new HashMap<>();
                     map.put("username", login_username);
@@ -398,6 +400,7 @@ private boolean userchanger=false;
                                 Toast.makeText(MainActivity.this, "两次密码不一致", Toast.LENGTH_SHORT).show();
                             } else {
                                 dialog1=new CustomDialog(MainActivity.this,"注册中...");
+                                dialog1.show();
                                 RegisterUser(user, password, usertype, musictype);//发送注册信息
                             }
                         } else {
@@ -465,12 +468,14 @@ private boolean userchanger=false;
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 switch (item.getItemId()) {
                     case R.id.item1:
+                        Intent intent=new Intent(MainActivity.this,AboutMyActivity.class);
+                             startActivity(intent);
                                 break;
                     case R.id.item2:
                         ChangeSkinColorPopWin();
                         break;
                     case R.id.item4:
-                        Toast.makeText(MainActivity.this, "退出", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MainActivity.this, "已退出应用", Toast.LENGTH_SHORT).show();
                         finish();
                         musicServe.onDestroy();
                         //timer.cancel();
@@ -622,6 +627,9 @@ private boolean userchanger=false;
         });
     }
     public void  ChangeSkinColorPopWin(){
+      final   SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
+     final    SharedPreferences.Editor editor=sharedPreferences.edit();
+       color= sharedPreferences.getString("newcolor","#fff");
         View popView = View.inflate(MainActivity.this, R.layout.changeskin, null);
         TextView cancel=popView.findViewById(R.id.cancel);
         TextView change=popView.findViewById(R.id.change);
@@ -630,7 +638,6 @@ private boolean userchanger=false;
         linearLayoutManager.setOrientation(RecyclerView.HORIZONTAL);
         skin_rec.setLayoutManager(linearLayoutManager);
         skin_rec.setAdapter(new SkinAdapter(MainActivity.this,handler));
-
         int weight = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels  / 4;
         final PopupWindow popupWindow = new PopupWindow(popView, weight, height);
@@ -643,11 +650,14 @@ private boolean userchanger=false;
             @Override
             public void onClick(View v) {
                 popupWindow.dismiss();
+                editor.putString("newcolor",SkinAdapter.newcolor);
+                editor.apply();
             }
         });
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                handler.sendEmptyMessage(4);
                 popupWindow.dismiss();
             }
         });
@@ -669,10 +679,22 @@ private boolean userchanger=false;
     protected void onResume() {
         super.onResume();
         Timer();
+        if(!info.contains(singer))
         info=info+"-"+singer;
         songinfo.setText(info);
         if (mediaPlayer.isPlaying()) {
             control_play.setImageResource(R.drawable.play);
+        }
+        else {
+            control_play.setImageResource(R.drawable.pause);
+        }
+        SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
+        String color= sharedPreferences.getString("newcolor","#ffffff");
+        Log.i("colors",color);
+        if (!color.equals("#ffffff")) {
+            getWindow().setStatusBarColor(Color.parseColor(color));
+            navigationView.setBackgroundColor(Color.parseColor(color));
+            tabliner.setBackgroundColor(Color.parseColor(color));
         }
     }
 
@@ -694,6 +716,7 @@ private boolean userchanger=false;
         }
         if (username != null) {
             Log.i("record_play", "执行存储");
+            Log.i("username", username);
             SharedPreferences.Editor editor = record_play.edit();
             for (Map.Entry<String, Integer> map : RecordMap.entrySet()) {
                 editor.putInt(map.getKey(), map.getValue());

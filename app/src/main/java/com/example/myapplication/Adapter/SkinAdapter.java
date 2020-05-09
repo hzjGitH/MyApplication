@@ -29,6 +29,8 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.ViewHolder> {
   private int choose;
   private Context context;
   private Handler handler;
+  public static String newcolor="";
+  public static String oldcolor="";
   public SkinAdapter(Context context, Handler handler){
       this.context=context;
       this.handler=handler;
@@ -79,6 +81,7 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.ViewHolder> {
         //根据是否被选中来添加不同的背景
         if(choose==position){
             holder.skinview.setBackground(ContextCompat.getDrawable(context,R.drawable.color_select));
+            newcolor=colors.get(position);
 
         }else{
             holder.skinview.setBackground(ContextCompat.getDrawable(context,R.drawable.color_unselect));

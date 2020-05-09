@@ -93,7 +93,7 @@ private Context context;
         final  ViewHolder viewHolder=holder;
 
         List<Commentsbean> commentlist =new ArrayList<>();
-       final PublicBean publicBean=publicBeanList.get(position);
+       final PublicBean publicBean=publicBeanList.get(publicBeanList.size() - position-1);
         holder.time.setText(publicBean.getTime());
         holder.count.setText(Integer.toString(publicBean.getCount()));
         holder.content1.setText(publicBean.getContent());

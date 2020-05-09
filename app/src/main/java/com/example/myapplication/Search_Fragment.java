@@ -75,6 +75,7 @@ public class Search_Fragment extends Fragment {
         super.onResume();
         if (username!=null)
             GetTuiJian();
+
     }
 
     @Override

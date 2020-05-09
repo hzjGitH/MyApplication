@@ -4,9 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.myapplication.Bean.Localmusic;
 import com.example.myapplication.Util.LoaclMusicUtil;
@@ -16,6 +19,7 @@ import java.util.List;
 public class LocalMusicActivity extends AppCompatActivity {
     List<Localmusic> localmusics;
     ImageView back;
+    LinearLayout titlelayout;
     RecyclerView music_rec;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -24,6 +28,7 @@ public class LocalMusicActivity extends AppCompatActivity {
         localmusics= LoaclMusicUtil.getmusic(LocalMusicActivity.this);
         back=findViewById(R.id.back);
         music_rec=findViewById(R.id.music_rec);
+        titlelayout=findViewById(R.id.titlelayout);
         System.out.println(localmusics);
         LocalMusicAdapter adapter=new LocalMusicAdapter(localmusics,this);
         LinearLayoutManager manager=new LinearLayoutManager(LocalMusicActivity.this);
@@ -37,7 +42,14 @@ public class LocalMusicActivity extends AppCompatActivity {
             }
         });
 
+    }
 
-
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
+        String color= sharedPreferences.getString("newcolor","#fff");
+        getWindow().setStatusBarColor(Color.parseColor(color));
+       titlelayout.setBackgroundColor(Color.parseColor(color));
     }
 }

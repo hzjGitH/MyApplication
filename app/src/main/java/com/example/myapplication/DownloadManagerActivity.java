@@ -7,9 +7,12 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.google.android.material.tabs.TabLayout;
@@ -24,6 +27,7 @@ public class DownloadManagerActivity extends AppCompatActivity {
     List<String> mtitle;
     List<Fragment> fragments = new ArrayList<>();
     ViewPager viewPager;
+    LinearLayout titlelayout;
     ImageView back;
     String title = "下载管理";
 
@@ -34,6 +38,7 @@ public class DownloadManagerActivity extends AppCompatActivity {
         titleview = findViewById(R.id.title);
         viewPager = findViewById(R.id.vp_manager);
         back = findViewById(R.id.back);
+        titlelayout=findViewById(R.id.titlelayout);
         tabLayout = findViewById(R.id.tab_layout);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -66,5 +71,14 @@ public class DownloadManagerActivity extends AppCompatActivity {
             }
         });
         tabLayout.setupWithViewPager(viewPager);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
+        String color= sharedPreferences.getString("newcolor","#fff");
+        getWindow().setStatusBarColor(Color.parseColor(color));
+        titlelayout.setBackgroundColor(Color.parseColor(color));
     }
 }

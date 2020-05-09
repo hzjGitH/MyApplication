@@ -164,13 +164,15 @@ public class RecordActivity extends AppCompatActivity {
         commentit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Music music = musicServe.CurrentMusic();
-                Intent intent = new Intent(RecordActivity.this, MusicCommentsActivity.class);
-                intent.putExtra("songname", music.getSongname());
-                intent.putExtra("singer", music.getSinger());
-                intent.putExtra("comments", music.getComments());
-                intent.putExtra("musictype",music.getMusictype());
-                startActivity(intent);
+                if(!MusicServe.localmusic) {
+                    Music music = musicServe.CurrentMusic();
+                    Intent intent = new Intent(RecordActivity.this, MusicCommentsActivity.class);
+                    intent.putExtra("songname", music.getSongname());
+                    intent.putExtra("singer", music.getSinger());
+                    intent.putExtra("comments", music.getComments());
+                    intent.putExtra("musictype", music.getMusictype());
+                    startActivity(intent);
+                }
             }
         });
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {

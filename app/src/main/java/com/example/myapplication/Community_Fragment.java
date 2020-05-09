@@ -72,7 +72,6 @@ import static android.app.Activity.RESULT_OK;
 import static com.example.myapplication.MainActivity.JSON;
 import static com.example.myapplication.MainActivity.username;
 
-
 public class Community_Fragment extends Fragment {
     private RecyclerView community_rec;
     private RecyclerView picture_rec;
@@ -110,15 +109,21 @@ public class Community_Fragment extends Fragment {
                             content_text.setText("");
                             Toast.makeText(context, "发表成功", Toast.LENGTH_SHORT).show();
                             pictureList.clear();
+                            files=new ArrayList<>();
                             pictureAdapter.notifyDataSetChanged();
                             addview.setVisibility(View.VISIBLE);
+                            index=0;
                             dialog.dismiss();
                         } else {
                             Toast.makeText(context, "发表失败", Toast.LENGTH_SHORT).show();
+                            pictureList.clear();
+                            files=new ArrayList<>();
                             dialog.dismiss();
                         }
                     } catch (JSONException e) {
                         e.printStackTrace();
+                        Toast.makeText(context, "出现未知错误", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
                     }
                     break;
                 case 2:
@@ -307,13 +312,11 @@ public class Community_Fragment extends Fragment {
         //获取屏幕宽高
         int weight = getResources().getDisplayMetrics().widthPixels;
         int height = getResources().getDisplayMetrics().heightPixels * 1 / 4;
-
         final PopupWindow popupWindow = new PopupWindow(popView, weight, height);
         popupWindow.setAnimationStyle(R.style.popup_ani);
         popupWindow.setFocusable(true);
         //点击外部popueWindow消失
         popupWindow.setOutsideTouchable(true);
-
         bt_album.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

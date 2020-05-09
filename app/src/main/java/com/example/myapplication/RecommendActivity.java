@@ -1,5 +1,7 @@
 package com.example.myapplication;
 
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.annotation.NonNull;
@@ -10,6 +12,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import com.example.myapplication.Bean.Music;
 import com.example.myapplication.Util.DataParser;
@@ -27,6 +30,7 @@ import okhttp3.Response;
 public class RecommendActivity extends AppCompatActivity {
 List<Music> musicList =new ArrayList<>();
 RecyclerView recommend_rec;
+LinearLayout titlelayout;
 
     private Handler handler=new Handler(new Handler.Callback() {
         @Override
@@ -52,6 +56,7 @@ RecyclerView recommend_rec;
         setContentView(R.layout.activity_recommend);
         recommend_rec=findViewById(R.id.recommend_rec);
         ImageView back=findViewById(R.id.back);
+        titlelayout=findViewById(R.id.titlelayout);
             GetRecommendMusic();
             back.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -81,5 +86,14 @@ RecyclerView recommend_rec;
             }
         });
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
+        String color= sharedPreferences.getString("newcolor","#fff");
+        getWindow().setStatusBarColor(Color.parseColor(color));
+        titlelayout.setBackgroundColor(Color.parseColor(color));
     }
 }
