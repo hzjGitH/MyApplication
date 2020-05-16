@@ -257,6 +257,7 @@ public class Community_Fragment extends Fragment {
 
     //上传图片和参数
     private void PublicInfo(List<File> files, Map<String, String> map) {
+
         BaseUtil baseUtil = new BaseUtil();
         map.put("number", Integer.toString(files.size()));
         for (int i = 0; i < files.size(); i++) {
@@ -265,19 +266,6 @@ public class Community_Fragment extends Fragment {
         OkHttpClient okHttpClient = new OkHttpClient();
         Gson gson = new Gson();
         RequestBody requestBody = RequestBody.create(JSON, gson.toJson(map));
-       /* MultipartBody.Builder multipartBodyBuilder = new MultipartBody.Builder();
-        multipartBodyBuilder.setType(MultipartBody.FORM);
-         if (map!=null){
-             for (String key : map.keySet()){
-                 multipartBodyBuilder.addFormDataPart(key, map.get(key));
-             }
-         }
-         if (files!=null){
-             for (File file : files){
-                 multipartBodyBuilder.addFormDataPart("file", file.getName(), RequestBody.create(MediaType.parse("application/octet-stream"), file));
-             }
-         }
-         RequestBody requestBody=multipartBodyBuilder.build();*/
         Request request = new Request.Builder().post(requestBody).url(Url.url + "community/PublishServlet").build();
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -302,7 +290,6 @@ public class Community_Fragment extends Fragment {
             }
         });
     }
-
 
     private void showPopueWindow() {
         View popView = View.inflate(context, R.layout.popupwindow, null);
@@ -393,8 +380,9 @@ public class Community_Fragment extends Fragment {
     }
 
     private String generateFileName() {
+        int random= (int)(999+Math.random()*(10000-999+999));
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPG_" + timeStamp;
+        String imageFileName = "JPG_" + timeStamp+"_"+random;
         System.out.println(".........." + imageFileName);
         return imageFileName;
     }
@@ -425,7 +413,7 @@ public class Community_Fragment extends Fragment {
                     try {
                         // System.out.println(uri);
                         Picture picture = new Picture();
-                        if (index < 7) {
+                        if (index < 9) {
                             //  Log.i("files","添加成功"+files.size());
                             picture.setBitmap(getBitmapFormUri(Uri.parse(url), false));
 

@@ -83,6 +83,6 @@
         android:layout_gravity="start"
         android:background="@drawable/view_background"
         app:headerLayout="@layout/head"
-        app:itemBackground="@color/brown"
+        app:itemBackground="@color/shallow"
         app:menu="@menu/menu"/>
 </androidx.drawerlayout.widget.DrawerLayout>

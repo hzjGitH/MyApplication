@@ -75,7 +75,6 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Vi
                   System.out.println("card"+card);
                   File file=new File(localmusic.getPath());
                   file.canRead();
-
                     mediaPlayer.setDataSource(file.getPath());
                     info = localmusic.getSongname();
                     singer = localmusic.getSinger();

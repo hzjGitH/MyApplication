@@ -74,7 +74,7 @@
             android:layout_height="40dp"
             android:textSize="18sp"
             android:textColor="@color/black"
-            android:text=" usertype："
+            android:text=" usertype:"
             android:id="@+id/register_usertype"
             />
         <Spinner
@@ -95,7 +95,7 @@
             android:layout_height="40dp"
             android:textSize="18sp"
             android:textColor="@color/black"
-            android:text="musictype："
+            android:text="musictype:"
             android:id="@+id/register_musictype"
             />
         <Spinner

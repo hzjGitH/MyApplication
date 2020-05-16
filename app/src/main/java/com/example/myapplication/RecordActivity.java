@@ -85,7 +85,7 @@ public class RecordActivity extends AppCompatActivity {
         control.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!mediaPlayer.isPlaying()) {
+                if (!mediaPlayer.isPlaying()&&mediaPlayer!=null) {
                     mediaPlayer.start();
                     discObjectAnimator.start();
                     neddleObjectAnimator.start();
@@ -111,6 +111,11 @@ public class RecordActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Bundle bundle = musicServe.nextmusic();
+                if (bundle==null){
+                    Toast.makeText(RecordActivity.this,"无资源",Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
                 songname.setText(bundle.getString("songname"));
                 singer.setText(bundle.getString("singer"));
                 Toast.makeText(RecordActivity.this, "下一首", Toast.LENGTH_SHORT).show();
@@ -121,6 +126,10 @@ public class RecordActivity extends AppCompatActivity {
             public void onCompletion(MediaPlayer mp) {
 
                 Bundle bundle = musicServe.nextmusic();
+                if (bundle==null){
+                    Toast.makeText(RecordActivity.this,"无资源",Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 songname.setText(bundle.getString("songname"));
                 singer.setText(bundle.getString("singer"));
                 Toast.makeText(RecordActivity.this, "下一首", Toast.LENGTH_SHORT).show();

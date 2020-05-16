@@ -46,6 +46,7 @@ import android.widget.Toast;
 import com.example.myapplication.Adapter.SkinAdapter;
 import com.example.myapplication.Bean.DownloadBean;
 import com.example.myapplication.Bean.Music;
+import com.example.myapplication.Util.BaseUtil;
 import com.example.myapplication.Util.CustomDialog;
 import com.example.myapplication.Util.Url;
 import com.google.android.material.navigation.NavigationView;
@@ -116,7 +117,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     SharedPreferences sharedPreferences;
     SharedPreferences record_play;
     Timer timer;
-    private FragmentTransaction fragmentTransaction;
     CustomDialog dialog1;
 private boolean userchanger=false;
 
@@ -252,7 +252,7 @@ private boolean userchanger=false;
             public void onCompletion(MediaPlayer mp) {
 
                Bundle bundle= musicServe.nextmusic();
-                Log.i("buuuuuu",bundle.toString());
+               if (bundle!=null)
               songinfo.setText(bundle.getString("songname")+"-"+bundle.getString("singer"));
             }
         });
@@ -333,6 +333,7 @@ private boolean userchanger=false;
                     OkHttpClient okHttpClient = new OkHttpClient();
                     Gson gson = new Gson();
                     String data = gson.toJson(map);
+                    data= BaseUtil.encryptPassword(data);
                     RequestBody requestBody = RequestBody.create(JSON, data);
                     Request request = new Request.Builder().post(requestBody)
                             .url(Url.url + "login/servlet/LoginServlet")
@@ -470,7 +471,7 @@ private boolean userchanger=false;
                     case R.id.item1:
                         Intent intent=new Intent(MainActivity.this,AboutMyActivity.class);
                              startActivity(intent);
-                                break;
+                        break;
                     case R.id.item2:
                         ChangeSkinColorPopWin();
                         break;
@@ -534,7 +535,7 @@ private boolean userchanger=false;
 
     public void setFragment(int index) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-         fragmentTransaction = fragmentManager.beginTransaction();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         hideFragments(fragmentTransaction);
         switch (index) {
             default:
@@ -602,11 +603,12 @@ private boolean userchanger=false;
         map.put("usertype", usertype);
         map.put("musictype", musictype);
         Gson gson = new Gson();
-        final String register_data = gson.toJson(map);
+         String register_data = gson.toJson(map);
+        register_data=BaseUtil.encryptPassword(register_data);
         RequestBody requestBody = RequestBody.create(JSON, register_data);
         OkHttpClient okHttpClient = new OkHttpClient();
         Request request = new Request.Builder().post(requestBody)
-                .url("http://192.168.1.19:8080/myproject/login/servlet/RegistServlet")
+                .url(Url.url+"login/servlet/RegistServlet")
                 .build();
         okHttpClient.newCall(request).enqueue(new Callback() {
             @Override
@@ -629,7 +631,7 @@ private boolean userchanger=false;
     public void  ChangeSkinColorPopWin(){
       final   SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
      final    SharedPreferences.Editor editor=sharedPreferences.edit();
-       color= sharedPreferences.getString("newcolor","#fff");
+
         View popView = View.inflate(MainActivity.this, R.layout.changeskin, null);
         TextView cancel=popView.findViewById(R.id.cancel);
         TextView change=popView.findViewById(R.id.change);
@@ -644,7 +646,7 @@ private boolean userchanger=false;
         popupWindow.setAnimationStyle(R.style.popup_ani);
         popupWindow.setFocusable(true);
         //点击外部popueWindow消失
-        popupWindow.setOutsideTouchable(true);
+        popupWindow.setOutsideTouchable(false);
         popupWindow.showAtLocation(popView, Gravity.BOTTOM, 0, 10);
         change.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -657,6 +659,7 @@ private boolean userchanger=false;
         cancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                color= sharedPreferences.getString("newcolor","#fff");
                 handler.sendEmptyMessage(4);
                 popupWindow.dismiss();
             }

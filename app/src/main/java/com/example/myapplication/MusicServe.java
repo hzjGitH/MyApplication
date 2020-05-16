@@ -112,12 +112,17 @@ public class MusicServe extends Service {
 
     //网络音乐调用
     public Bundle nextmusic() {
+        if (musicList==null&&list==null)
+            return null;
         Bundle bundle = new Bundle();
         if (localmusic) {
             bundle = nextmusic(1);
         } else {
             if (index != musicList.size() - 1) {
                 index++;
+            }else {
+                index=0;
+            }
                 try {
                     mediaPlayer.reset();
                     mediaPlayer.setDataSource(Url.url + musicList.get(index).getPath());
@@ -137,7 +142,7 @@ public class MusicServe extends Service {
                     }
                 });
 
-            }
+
         }
 
         return bundle;
@@ -146,9 +151,13 @@ public class MusicServe extends Service {
 
     //本地音乐调用
     public Bundle nextmusic(int i) {
+
         Bundle bundle = new Bundle();
         if (index != list.size() - 1) {
             index++;
+        }else {
+            index=0;
+        }
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(list.get(index).getPath());
@@ -168,18 +177,24 @@ public class MusicServe extends Service {
                 }
             });
 
-        }
+
         return bundle;
     }
 
     //网络部分调用
     public Bundle premusic() {
+        if (musicList==null&&list==null){
+            return null;
+        }
         Bundle bundle = new Bundle();
         if (localmusic) {
             bundle = premusic(1);
         } else {
             if (index != 0) {
                 index--;
+            }else {
+                index=musicList.size()-1;
+            }
                 try {
                     mediaPlayer.reset();
                     mediaPlayer.setDataSource(Url.url + musicList.get(index).getPath());
@@ -201,7 +216,7 @@ public class MusicServe extends Service {
                     }
                 });
 
-            }
+
         }
         return bundle;
     }
@@ -211,6 +226,9 @@ public class MusicServe extends Service {
         Bundle bundle = new Bundle();
         if (index != 0) {
             index--;
+        }else {
+            index=list.size()-1;
+        }
             try {
                 mediaPlayer.reset();
                 mediaPlayer.setDataSource(list.get(index).getPath());
@@ -232,7 +250,7 @@ public class MusicServe extends Service {
                 }
             });
 
-        }
+
         return bundle;
     }
 

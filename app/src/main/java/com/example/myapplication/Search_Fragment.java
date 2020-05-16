@@ -44,6 +44,7 @@ public class Search_Fragment extends Fragment {
    private LinearLayout recomandlayout;//每日推荐
     private LinearLayout ranklayout;//排行榜
     private LinearLayout songlayou;//歌单
+    private LinearLayout newestlayout;//最新推荐
     private  UltraViewPager ultraViewPager;
     private LinearLayout  dotHorizontal;
     RecyclerView tuijian_rec;
@@ -73,7 +74,7 @@ public class Search_Fragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (username!=null)
+        if (username!=null&&musicList!=null)
             GetTuiJian();
 
     }
@@ -85,6 +86,7 @@ public class Search_Fragment extends Fragment {
         recomandlayout=view.findViewById(R.id.recommend);
         songlayou=view.findViewById(R.id.song_sheet);
         ranklayout=view.findViewById(R.id.rank_list);
+        newestlayout=view.findViewById(R.id.newestlayout);
         ultraViewPager=view.findViewById(R.id.viewpage);
         tuijian_rec=view.findViewById(R.id.tuijian_rec);
         dotHorizontal=view.findViewById(R.id.dot_horizontal);
@@ -120,6 +122,13 @@ public class Search_Fragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(v.getContext(),RankActivity.class);
+                startActivity(intent);
+            }
+        });
+        newestlayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(v.getContext(),NewestActivity.class);
                 startActivity(intent);
             }
         });
