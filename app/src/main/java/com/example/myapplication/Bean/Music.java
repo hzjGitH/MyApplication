@@ -6,6 +6,7 @@ private   String songname;//歌名
  private   String path;//路径
 private String musictype;//音乐类型
 private String comments;//音乐评论
+    private String lyric;//歌词路径
 
     public String getPath() {
         return path;
@@ -21,6 +22,14 @@ private String comments;//音乐评论
 
     public String getComments() {
         return comments;
+    }
+
+    public String getLyric() {
+        return lyric;
+    }
+
+    public void setLyric(String lyric) {
+        this.lyric = lyric;
     }
 
     public void setComments(String comments) {

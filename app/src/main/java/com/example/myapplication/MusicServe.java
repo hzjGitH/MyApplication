@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.util.Log;
 import android.view.View;
 import android.widget.SeekBar;
 import android.widget.Toast;
@@ -19,9 +20,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.List;
 
+import static com.example.myapplication.MainActivity.RecordMap;
 import static com.example.myapplication.MainActivity.info;
 import static com.example.myapplication.MainActivity.path;
 import static com.example.myapplication.MainActivity.singer;
+import static com.example.myapplication.MainActivity.username;
 
 public class MusicServe extends Service {
     IBinder binder;
@@ -86,7 +89,8 @@ public class MusicServe extends Service {
     }
 
     //封装暂停
-    public void pause() {
+    public void pause(MediaPlayer mediaPlayer) {
+        this.mediaPlayer=mediaPlayer;
         if (mediaPlayer.isPlaying())
             mediaPlayer.pause();
     }
@@ -139,6 +143,13 @@ public class MusicServe extends Service {
                     @Override
                     public void onPrepared(MediaPlayer mp) {
                         mediaPlayer.start();
+                        if (username!=null) {
+                           int midcount = MainActivity.RecordMap.get(musicList.get(index).getMusictype());
+                            midcount=midcount+1;
+                            MainActivity.RecordMap.put(musicList.get(index).getMusictype(), midcount);
+                            Log.i("RecordMap", RecordMap.toString());
+                        }
+                        Log.i("Duration",String.valueOf(mediaPlayer.getDuration() /1000));
                     }
                 });
 
@@ -213,6 +224,12 @@ public class MusicServe extends Service {
                     @Override
                     public void onPrepared(MediaPlayer mp) {
                         mediaPlayer.start();
+                        if (username!=null) {
+                            int midcount = MainActivity.RecordMap.get(musicList.get(index).getMusictype());
+                            midcount=midcount+1;
+                            MainActivity.RecordMap.put(musicList.get(index).getMusictype(), midcount);
+                            Log.i("RecordMap", RecordMap.toString());
+                        }
                     }
                 });
 
@@ -257,7 +274,7 @@ public class MusicServe extends Service {
 
     //返回当前播放的歌曲信息
     public Music CurrentMusic() {
-        if (list != null) {
+        if (list != null||musicList==null) {
             return null;
         }
         return musicList.get(index);

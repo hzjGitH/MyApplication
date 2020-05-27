@@ -108,7 +108,7 @@ public class NewestActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
-        String color= sharedPreferences.getString("newcolor","#fff");
+        String color= sharedPreferences.getString("newcolor","#ffffff");
         getWindow().setStatusBarColor(Color.parseColor(color));
         titlelayout.setBackgroundColor(Color.parseColor(color));
     }

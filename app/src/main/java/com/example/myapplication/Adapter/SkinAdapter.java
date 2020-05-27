@@ -34,14 +34,14 @@ public class SkinAdapter extends RecyclerView.Adapter<SkinAdapter.ViewHolder> {
   public SkinAdapter(Context context, Handler handler){
       this.context=context;
       this.handler=handler;
-      colors.add("#B16DE2");
+      colors.add("#FCFCFC");
       colors.add("#4F97E9");
       colors.add("#008080");
       colors.add("#0878E8");
       colors.add("#3dfc7a");
       colors.add("#fcf02d");
       colors.add("#e080ff");
-      colors.add("#17b9e7");
+      colors.add("#FF4500");
       colors.add("#ffb294");
 
   }

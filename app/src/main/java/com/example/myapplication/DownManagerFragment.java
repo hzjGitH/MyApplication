@@ -2,6 +2,8 @@ package com.example.myapplication;
 
 import android.content.Context;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -22,6 +24,13 @@ private Context context;
     this.context=context;
     }
 
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        addDownloadAdapter=new AddDownloadAdapter(context,MainActivity.downloadBeanList);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -30,7 +39,6 @@ private Context context;
         LinearLayoutManager manager=new LinearLayoutManager(context);
         manager.setOrientation(RecyclerView.VERTICAL);
         download_rec.setLayoutManager(manager);
-         addDownloadAdapter=new AddDownloadAdapter(context,MainActivity.downloadBeanList);
         download_rec.setAdapter(addDownloadAdapter);
         return view;
     }

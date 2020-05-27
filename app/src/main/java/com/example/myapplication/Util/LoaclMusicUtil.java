@@ -25,15 +25,16 @@ public class LoaclMusicUtil {
             if (name.contains("-")) {
                 String[] str = name.split("-");
                 songname = str[1];
+                localmusic.setSinger(str[0]);
                 int index=songname.indexOf(".");
                 songname=songname.substring(0,index);
             } else {
                 songname=name;
+                localmusic.setSinger(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)));
             }
             localmusic.setSongname(songname);
             localmusic.setId(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media._ID)));
             localmusic.setPath(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DATA)));
-            localmusic.setSinger(cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ARTIST)));
             localmusic.setDuration(cursor.getInt(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DURATION)));
             localmusic.setAlbumid(cursor.getLong(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.ALBUM_ID)));
             localmusics.add(localmusic);

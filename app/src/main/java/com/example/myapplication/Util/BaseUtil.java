@@ -16,7 +16,8 @@ import javax.crypto.spec.DESKeySpec;
 public class BaseUtil {
 //将图片以Base64方式编码为字符串
 private final static String PASSWORD_ENC_SECRET = "mythmayor";
-    public String encodeImage(String url){
+
+    public static String encodeImage(String url){
         byte[] bytes=new byte[0];
         try {
             FileInputStream fileInputStream = new FileInputStream(url);

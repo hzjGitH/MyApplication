@@ -3,9 +3,13 @@ package com.example.myapplication.View;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.util.AttributeSet;
+import android.view.Gravity;
 import android.view.View;
-import android.widget.Toast;
+import android.widget.ImageView;
+import android.widget.PopupWindow;
 
+import com.bumptech.glide.Glide;
+import com.example.myapplication.R;
 import com.nostra13.universalimageloader.core.assist.FailReason;
 import com.nostra13.universalimageloader.core.listener.ImageLoadingListener;
 
@@ -78,5 +82,24 @@ public class NineGridTestLayout extends NineGridLayout {
     @Override
     protected void onClickImage(int i, String url, List<String> urlList) {
        // Toast.makeText(mContext, "点击了图片" + url, Toast.LENGTH_SHORT).show();
+        ShowBigImage(url);
+    }
+   private void ShowBigImage(String url){
+        View Bigview=View.inflate(mContext, R.layout.bigimage,null);
+        ImageView bigview=Bigview.findViewById(R.id.bigimage);
+        Glide.with(mContext).load(url).into(bigview);
+
+        int weight = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels ;
+        final PopupWindow popupWindow = new PopupWindow(Bigview, weight, height);
+         popupWindow.setOutsideTouchable(true);
+        popupWindow.setAnimationStyle(R.style.popup_ani);
+        popupWindow.showAtLocation(Bigview, Gravity.CENTER, 0, 0);
+       bigview.setOnClickListener(new View.OnClickListener(){
+           @Override
+           public void onClick(View v) {
+               popupWindow.dismiss();
+           }
+       });
     }
 }

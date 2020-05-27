@@ -5,6 +5,7 @@
 <com.example.myapplication.Util.CircleImageView
     android:layout_width="100dp"
     android:layout_height="100dp"
+    android:id="@+id/headview"
     android:src="@drawable/user"
     android:backgroundTintMode="src_over"
     android:layout_gravity="center"/>

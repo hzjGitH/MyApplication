@@ -45,6 +45,7 @@ public class CircleImageView extends AppCompatImageView {
     protected void onDraw(Canvas canvas) {
 
         mPaint = new Paint();
+
         Bitmap bitmap = drawableToBitmap(getDrawable());
 
         //初始化BitmapShader，传入bitmap对象

@@ -4,10 +4,19 @@ public class PublicBean {
     private String id;
     private String username;
     private String content;
-    private String comment=null;//评论内容
+    private String comment="";//评论内容
     private String time;
     private int count;//点赞数
     private String photo;//图片地址
+    private String headurl;
+
+    public void setHeadurl(String headurl) {
+        this.headurl = headurl;
+    }
+
+    public String getHeadurl() {
+        return headurl;
+    }
 
     public void setPhoto(String photo) {
         this.photo = photo;

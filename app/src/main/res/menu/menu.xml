@@ -14,7 +14,7 @@
     </group>
     <group android:id="@+id/third">
         <item android:id="@+id/item3"
-            android:title="消息"
+            android:title="我的动态"
             >
         </item>
     </group>

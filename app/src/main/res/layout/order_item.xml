@@ -7,9 +7,11 @@
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
-<com.example.myapplication.Util.CircleImageView
+<de.hdodenhof.circleimageview.CircleImageView
     android:layout_width="60dp"
     android:layout_height="60dp"
+    android:layout_marginTop="5dp"
+    android:layout_marginStart="5dp"
     android:id="@+id/user_view"
     android:src="@drawable/user"/>
         <TextView
@@ -18,17 +20,30 @@
             android:text="用户名"
             android:textSize="20sp"
             android:id="@+id/uname"
-            android:layout_marginStart="10dp"
+            android:textColor="@color/black"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="5dp"
             android:layout_toEndOf="@+id/user_view"
             />
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="20sp"
-            android:layout_marginStart="10dp"
+            android:text="时间"
+            android:textSize="16sp"
+            android:textColor="@color/black"
+            android:layout_marginStart="15dp"
+            android:layout_marginTop="5dp"
             android:id="@+id/time"
             android:layout_below="@+id/uname"
             android:layout_toEndOf="@+id/user_view"/>
+        <ImageView
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:id="@+id/delete"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="10dp"
+            android:layout_marginTop="10dp"
+            android:src="@drawable/recycle"/>
     </RelativeLayout>
     <TextView
         android:layout_width="wrap_content"
@@ -48,15 +63,6 @@
     android:layout_marginEnd="10dp"
     app:sapcing="4dp"
     />
-<!--<GridView
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/gridview"
-    android:stretchMode="columnWidth"
-    android:verticalSpacing="2dp"
-    android:numColumns="3"
-    android:clickable="false"
-    android:scrollbars="none"/>-->
     <RelativeLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
@@ -80,8 +86,16 @@
             android:id="@+id/Praise_points"
             android:text="0"
             android:layout_marginTop="20dp"
-            android:layout_toStartOf="@id/commenticon"
-            android:layout_marginEnd="30dp" />
+            android:layout_toStartOf="@+id/commenticon"
+            android:layout_marginEnd="20dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/comment_count"
+            android:text="0"
+            android:layout_marginTop="20dp"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="15dp"/>
     </RelativeLayout>
     <com.example.myapplication.Commentsview
         android:layout_width="match_parent"

@@ -84,6 +84,7 @@
             android:theme="@style/spinnerstyle"
             android:focusableInTouchMode="true"
             android:entries="@array/user_array"
+            android:dropDownWidth="100dp"
             android:scrollbars="vertical">
         </Spinner>
     </LinearLayout>
@@ -105,6 +106,7 @@
             android:theme="@style/spinnerstyle"
             android:focusableInTouchMode="true"
             android:entries="@array/music_array"
+            android:dropDownWidth="100dp"
             android:scrollbars="vertical">
         </Spinner>
     </LinearLayout>

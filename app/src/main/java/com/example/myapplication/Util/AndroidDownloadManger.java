@@ -13,6 +13,7 @@ import android.provider.MediaStore;
 import android.widget.Toast;
 
 import com.example.myapplication.Bean.DownloadBean;
+import com.example.myapplication.DownManagerFragment;
 import com.example.myapplication.MainActivity;
 
 import java.io.File;
@@ -33,11 +34,11 @@ public class AndroidDownloadManger {
     {
     this.context=context;
     this.url=url;
-    this.name=getFileNameByUrl(url);
+    name=getFileNameByUrl(url);
     }
     public void download(){
     DownloadManager.Request request=new DownloadManager.Request(Uri.parse(url));
-    request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI);
+    request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_MOBILE);
     request.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE);
     request.setTitle(name);
     request.setDescription("正在下载中.....");
@@ -58,6 +59,8 @@ public class AndroidDownloadManger {
         downloadBean.setPath(path);
         downloadBean.setUrl(url);
         MainActivity.downloadBeanList.add(downloadBean);
+        if (DownManagerFragment.addDownloadAdapter!=null)
+            DownManagerFragment.addDownloadAdapter.notifyDataSetChanged();
     }
    // context.registerReceiver(receiver,new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE));
     }
@@ -77,8 +80,10 @@ public static int getDownloadPercent(long downloadid){
             int totalBytestIdx=cursor.getColumnIndexOrThrow(DownloadManager.COLUMN_TOTAL_SIZE_BYTES);
             long  downloadBytes=cursor.getLong(downloadBytesIdx);
             long totalBytes=cursor.getLong(totalBytestIdx);
+            cursor.close();
             return (int) (downloadBytes * 100 / totalBytes);
         }
+    cursor.close();
         return 0;
 }
 

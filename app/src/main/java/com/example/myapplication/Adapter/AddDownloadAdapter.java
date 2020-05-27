@@ -1,9 +1,9 @@
 package com.example.myapplication.Adapter;
 
 import android.app.AlertDialog;
+import android.app.DownloadManager;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
@@ -12,7 +12,6 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -32,17 +31,25 @@ public class AddDownloadAdapter extends RecyclerView.Adapter<AddDownloadAdapter.
     List<DownloadBean> downloadBeanList;
     TextView downloadpercent;
     long downloadid;
-    Handler handler=new Handler(new Handler.Callback() {
+    DownloadManager downloadManager;
+
+
+   private Handler handler=new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
             if (msg.what==1)
             downloadpercent.setText(Integer.toString(AndroidDownloadManger.getDownloadPercent(downloadid))+"%");
-            return true;
+            return false;
         }
     });
+
+
+
+
    public AddDownloadAdapter(Context context,List<DownloadBean> downloadBeanList){
         this.context=context;
         this.downloadBeanList=downloadBeanList;
+       downloadManager=(DownloadManager) context.getSystemService(Context.DOWNLOAD_SERVICE);
     }
     public class ViewHolder extends RecyclerView.ViewHolder {
         AutoMarqueeTextView downloadname;
@@ -72,22 +79,22 @@ public class AddDownloadAdapter extends RecyclerView.Adapter<AddDownloadAdapter.
         final DownloadBean downloadBean=downloadBeanList.get(position);
         holder.downloadname.setText(downloadBean.getDownloadname());
         holder.downloadbar.setEnabled(false);
-        TimerTask timerTask=new TimerTask() {
+       TimerTask timerTask=new TimerTask() {
             @Override
             public void run() {
+                if (downloadBeanList.size()==0)
+                    return;
                 holder.downloadbar.setProgress(AndroidDownloadManger.getDownloadPercent(downloadBean.getDownloadid()));
                 downloadid=downloadBean.getDownloadid();
                 handler.sendEmptyMessage(1);
+
             }
         };
         downloadtimer=new Timer();
-        downloadtimer.schedule(timerTask,10,10);
-      /*  holder.downloadlinear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        downloadtimer.schedule(timerTask,0,10);
 
-            }
-        });*/
+
+
         holder.downloadlinear.setOnLongClickListener(new View.OnLongClickListener() {
             @Override
             public boolean onLongClick(View v) {
@@ -98,6 +105,7 @@ public class AddDownloadAdapter extends RecyclerView.Adapter<AddDownloadAdapter.
                     public void onClick(DialogInterface dialog, int which) {
                         AndroidDownloadManger.downloadManager.remove(downloadBean.getDownloadid());
                         MainActivity.downloadBeanList.remove(downloadBean);
+                        notifyDataSetChanged();
                         dialog.dismiss();
                     }
                 });

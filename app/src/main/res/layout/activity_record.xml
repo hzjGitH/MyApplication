@@ -14,6 +14,7 @@
 <com.example.myapplication.Util.AutoMarqueeTextView
     android:layout_width="150dp"
     android:layout_height="20dp"
+    android:text="songname"
     android:id="@+id/songname"
     android:layout_toEndOf="@+id/back"
     android:layout_marginStart="15sp"
@@ -22,30 +23,21 @@
         android:layout_width="100dp"
         android:layout_height="20dp"
         android:id="@+id/singer"
+        android:text="singer"
         android:layout_toEndOf="@+id/back"
         android:layout_below="@+id/songname"
         android:layout_marginTop="5dp"
         android:layout_marginStart="15sp"/>
-    <View
-        android:id="@+id/myView"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_centerInParent="true"
-        />
-    <ImageView
-        android:id="@+id/needle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_marginTop="73dp"
-        android:adjustViewBounds="true"
-        android:contentDescription="唱片指针"
-        android:maxHeight="180dp"
-        android:src="@drawable/needle" />
+    <androidx.viewpager.widget.ViewPager
+        android:layout_width="match_parent"
+        android:layout_height="430dp"
+        android:layout_marginTop="10dp"
+        android:id="@+id/Record_viewpage"
+        android:layout_below="@id/singer"/>
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/myView"
+        android:layout_below="@+id/Record_viewpage"
         android:id="@+id/linear1"
         android:layout_marginTop="20dp"
         android:gravity="center"

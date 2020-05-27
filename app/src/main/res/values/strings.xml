@@ -7,4 +7,11 @@
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
     <string name="title_notifications">Notifications</string>
+    <declare-styleable name="LyricView">
+        <attr name="selectedColor" format="color" />
+        <attr name="normalColor" format="color" />
+        <attr name="bigTextSize" format="dimension" />
+        <attr name="smallTextSize" format="dimension" />
+        <attr name="lineHeight" format="dimension" />
+    </declare-styleable>
 </resources>

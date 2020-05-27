@@ -1,6 +1,7 @@
 package com.example.myapplication;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -12,17 +13,22 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.animation.ValueAnimator;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ComponentName;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -32,8 +38,11 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -47,17 +56,28 @@ import com.example.myapplication.Adapter.SkinAdapter;
 import com.example.myapplication.Bean.DownloadBean;
 import com.example.myapplication.Bean.Music;
 import com.example.myapplication.Util.BaseUtil;
+import com.example.myapplication.Util.CircleImageView;
 import com.example.myapplication.Util.CustomDialog;
 import com.example.myapplication.Util.Url;
 import com.google.android.material.navigation.NavigationView;
 import com.google.gson.Gson;
 import org.json.JSONException;
 import org.json.JSONObject;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import okhttp3.Call;
@@ -78,6 +98,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static List<DownloadBean> downloadBeanList = new ArrayList<>();
     public static List<DownloadBean> finishdownloadlist = new ArrayList<>();
     public static Map<String, Integer> RecordMap = new HashMap<>();
+   public static Bitmap bitmap;
     String login_username;
     ImageView menu;
     ImageView control_play;//播放开关
@@ -102,6 +123,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     LinearLayout recommendlayout;
     LinearLayout tabliner;
     TextView after_login;//成功登陆显示用户名字
+    CircleImageView headview;
     //对应三个不同的Fragment
     private Fragment community_Fragment;
     private Fragment search_Fragment;
@@ -110,14 +132,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     static MusicServe musicServe = new MusicServe();//音乐服务
     MusicConnector conn;
     public static MediaPlayer mediaPlayer = new MediaPlayer();
-    public static String info = "";//歌曲名字
-    public static String singer = "";//歌手名字
+    public static String info = "借";//歌曲名字
+    public static String singer = "毛不易";//歌手名字
+    public String playinfo;//歌曲+歌手名字
     static String path = "";//路径
     public static String color="";
     SharedPreferences sharedPreferences;
     SharedPreferences record_play;
     Timer timer;
     CustomDialog dialog1;
+   public static String headurl;
 private boolean userchanger=false;
 
     Handler handler = new Handler(new Handler.Callback() {
@@ -132,6 +156,19 @@ private boolean userchanger=false;
 
                         if (jsonObject.get("status").toString().equals("true")) {
                             id = jsonObject.getString("id");
+                                headurl =  jsonObject.getString("headurl");
+                                new Thread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            bitmap = getBitmap(Url.url+headurl);
+                                            handler.sendEmptyMessage(5);
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }).start();
+
                             String musictype = jsonObject.getString("musictype");
                             Toast.makeText(MainActivity.this, info, Toast.LENGTH_SHORT).show();
                             username = login_username;
@@ -149,6 +186,8 @@ private boolean userchanger=false;
                             Log.i("RecordMap", RecordMap.toString());
                             if (RecordMap.get(musictype) == 0)//第一次登陆赋值一个用户注册选择的音乐类型基值20用于推荐音乐
                                 RecordMap.put(musictype, 20);
+
+                           Search_Fragment.gettuijian=true;
                           search_Fragment.onResume();
                             dialog1.dismiss();
                         } else {
@@ -180,6 +219,10 @@ private boolean userchanger=false;
                     //navigationView.setItemBackgroundResource();
                     tabliner.setBackgroundColor(Color.parseColor(color));
                     break;
+                case 5:
+                    headview.setImageBitmap(bitmap);
+                    break;
+
             }
             return false;
         }
@@ -222,6 +265,9 @@ private boolean userchanger=false;
                 String json = sharedPreferences.getString("recentlyList" + i, null);
                 recentlyList.add(gson.fromJson(json, Music.class));
             }
+            //去重
+            Set<Music> set=new HashSet<>(recentlyList);
+            recentlyList=new ArrayList<>(set);
         }
         //取出用户使用的历史记录（播放，下载，添加喜欢，搜索）
 
@@ -286,6 +332,7 @@ private boolean userchanger=false;
             @Override
             public void onClick(View v) {
                 ShowLoginDialog();
+
             }
         });
         register.setOnClickListener(new View.OnClickListener() {
@@ -308,6 +355,12 @@ private boolean userchanger=false;
                 Intent intent = new Intent(MainActivity.this, RecordActivity.class);
 
                 startActivity(intent);
+            }
+        });
+        headview.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ChangeHeadViewPopWin();
             }
         });
 
@@ -391,6 +444,7 @@ private boolean userchanger=false;
                 .setView(register_view).setCancelable(true).setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
+
                         String user = register_user.getText().toString();
                         String password = register_password.getText().toString();
                         String repeat = repeat_password.getText().toString();
@@ -436,6 +490,7 @@ private boolean userchanger=false;
         recommendlayout = findViewById(R.id.recommend);
         nav_head_view = navigationView.getHeaderView(0);
         beforelayout = nav_head_view.findViewById(R.id.before);
+        headview=nav_head_view.findViewById(R.id.headview);
         after_login = nav_head_view.findViewById(R.id.after_login);
         login = nav_head_view.findViewById(R.id.login);
         register = nav_head_view.findViewById(R.id.register);
@@ -475,6 +530,14 @@ private boolean userchanger=false;
                     case R.id.item2:
                         ChangeSkinColorPopWin();
                         break;
+                    case R.id.item3:
+                        if (username!=null){
+                            Intent intent1=new Intent(MainActivity.this,MydynamicActivity.class);
+                            startActivity(intent1);
+                        }else {
+                            Toast.makeText(MainActivity.this, "请先登录", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
                     case R.id.item4:
                         Toast.makeText(MainActivity.this, "已退出应用", Toast.LENGTH_SHORT).show();
                         finish();
@@ -509,7 +572,7 @@ private boolean userchanger=false;
                 }
             }
         };
-        timer.schedule(timerTask, 0, 1000);
+        timer.schedule(timerTask, 0, 100);
     }
 
     public void closTimer() {
@@ -646,7 +709,7 @@ private boolean userchanger=false;
         popupWindow.setAnimationStyle(R.style.popup_ani);
         popupWindow.setFocusable(true);
         //点击外部popueWindow消失
-        popupWindow.setOutsideTouchable(false);
+        popupWindow.setOutsideTouchable(true);
         popupWindow.showAtLocation(popView, Gravity.BOTTOM, 0, 10);
         change.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -665,6 +728,47 @@ private boolean userchanger=false;
             }
         });
     }
+private void ChangeHeadViewPopWin(){
+        View view=View.inflate(this,R.layout.head_pop,null);
+        Button change_head=view.findViewById(R.id.change_head);
+        Button cancel=view.findViewById(R.id.pop_cancel);
+        int weight = getResources().getDisplayMetrics().widthPixels;
+         int height = getResources().getDisplayMetrics().heightPixels / 5;
+       final   PopupWindow popupWindow = new PopupWindow(view, weight, height);
+        popupWindow.setAnimationStyle(R.style.popup_ani);
+        popupWindow.setFocusable(true);
+    //点击外部popueWindow消失
+    popupWindow.setOutsideTouchable(true);
+    //popupWindow消失屏幕变为不透明
+    change_head.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(Intent.ACTION_PICK);
+            intent.setType("image/*");
+            startActivityForResult(intent, 1001);
+            popupWindow.dismiss();
+        }
+    });
+    cancel.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            popupWindow.dismiss();
+        }
+    });
+    popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+        @Override
+        public void onDismiss() {
+            WindowManager.LayoutParams lp = getWindow().getAttributes();
+            lp.alpha = 1.0f;
+            getWindow().setAttributes(lp);
+        }
+    });
+    //popupWindow出现屏幕变为半透明
+    WindowManager.LayoutParams lp = getWindow().getAttributes();
+    lp.alpha = 0.5f;
+    getWindow().setAttributes(lp);
+    popupWindow.showAtLocation(view, Gravity.BOTTOM, 0, 10);
+}
 
     public void RotateAnimation(ImageView view) {
         ObjectAnimator discObjectAnimator = ObjectAnimator.ofFloat(view, "rotation", 0, 360);
@@ -676,15 +780,124 @@ private boolean userchanger=false;
         discObjectAnimator.setRepeatMode(ValueAnimator.RESTART);
 
     }
-    
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        if (resultCode==RESULT_OK&&requestCode==1001&&data!=null){
+            try {
+                Uri uri=data.getData();
+                Bitmap bitmap =getBitmapFormUri(uri);
+                File file=new File(getFilesDir(),"touxiang.png");
+                FileOutputStream fileOutputStream=new FileOutputStream(file);
+                bitmap.compress(Bitmap.CompressFormat.PNG,100,fileOutputStream);
+                fileOutputStream.flush();
+                fileOutputStream.close();
+                headview.setImageBitmap(bitmap);
+                if (username!=null){
+                    String touxiang= BaseUtil.encodeImage(file.getPath());
+                    UploadHead(touxiang);
+                }
+            }catch (FileNotFoundException e){
+                e.printStackTrace();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+
+
+        }
+
+        super.onActivityResult(requestCode, resultCode, data);
+    }
+    public Bitmap getBitmapFormUri(Uri uri) throws IOException {
+        InputStream input =getContentResolver().openInputStream(uri);
+        // InputStream input=getActivity().openFileInput(uri.toString());
+        //这一段代码是不加载文件到内存中也得到bitmap的真是宽高，主要是设置inJustDecodeBounds为true
+        BitmapFactory.Options onlyBoundsOptions = new BitmapFactory.Options();
+        onlyBoundsOptions.inJustDecodeBounds = true;//不加载到内存
+        onlyBoundsOptions.inDither = true;//optional
+        onlyBoundsOptions.inPreferredConfig = Bitmap.Config.RGB_565;//optional
+        BitmapFactory.decodeStream(input, null, onlyBoundsOptions);
+        input.close();
+        int originalWidth = onlyBoundsOptions.outWidth;
+        int originalHeight = onlyBoundsOptions.outHeight;
+        if ((originalWidth == -1) || (originalHeight == -1))
+            return null;
+
+        //图片分辨率以600x480为标准
+        float hh = 600f;//这里设置高度为600f
+        float ww = 600f;//这里设置宽度为600f
+        //缩放比，由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
+        int be = 1;//be=1表示不缩放
+        if (originalWidth > originalHeight && originalWidth > ww) {//如果宽度大的话根据宽度固定大小缩放
+            be = (int) (originalWidth / ww);
+        } else if (originalWidth < originalHeight && originalHeight > hh) {//如果高度高的话根据宽度固定大小缩放
+            be = (int) (originalHeight / hh);
+        }
+        if (be <= 0)
+            be = 1;
+        //比例压缩
+        BitmapFactory.Options bitmapOptions = new BitmapFactory.Options();
+        bitmapOptions.inSampleSize = be;//设置缩放比例
+        bitmapOptions.inDither = true;
+        bitmapOptions.inPreferredConfig = Bitmap.Config.RGB_565;
+
+         input =getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(input, null, bitmapOptions);
+        input.close();
+
+        return compressImage(bitmap);//再进行质量压缩
+    }
+    public Bitmap compressImage(Bitmap image) {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        image.compress(Bitmap.CompressFormat.PNG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
+        int options = 100;
+        while (baos.toByteArray().length / 1024 > 100) {  //循环判断如果压缩后图片是否大于100kb,大于继续压缩
+            baos.reset();//重置baos即清空baos
+            //第一个参数 ：图片格式 ，第二个参数： 图片质量，100为最高，0为最差  ，第三个参数：保存压缩后的数据的流
+            image.compress(Bitmap.CompressFormat.PNG, options, baos);//这里压缩options，把压缩后的数据存放到baos中
+            options -= 10;//每次都减少10
+            if (options <= 0)
+                break;
+        }
+        ByteArrayInputStream isBm = new ByteArrayInputStream(baos.toByteArray());//把压缩后的数据baos存放到ByteArrayInputStream中
+        Bitmap bitmap = BitmapFactory.decodeStream(isBm, null, null);//把ByteArrayInputStream数据生成图片
+        return bitmap;
+    }
+    public void UploadHead(String touxiang){
+        OkHttpClient okHttpClient=new OkHttpClient();
+        Map<String,String> map=new HashMap<>();
+        map.put("username",username);
+        map.put("touxiang",touxiang);
+        Gson gson=new Gson();
+        RequestBody requestBody=RequestBody.create(JSON,gson.toJson(map));
+        final Request request=new Request.Builder().post(requestBody).url(Url.url+"login/servlet/ChangeHeadViewServlet").build();
+        okHttpClient.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                Log.i("headURL----",response.body().string());
+            }
+        });
+    }
+    public static Bitmap getBitmap(String path) throws IOException{
+
+        URL url = new URL(path);
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        InputStream inputStream = conn.getInputStream();
+        return BitmapFactory.decodeStream(inputStream);
+
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
         Timer();
-        if(!info.contains(singer))
-        info=info+"-"+singer;
-        songinfo.setText(info);
+        playinfo=info+"-"+singer;
+        songinfo.setText(playinfo);
         if (mediaPlayer.isPlaying()) {
             control_play.setImageResource(R.drawable.play);
         }
@@ -705,6 +918,9 @@ private boolean userchanger=false;
     protected void onStop() {
         super.onStop();
         if (recentlyList.size() != 0) {
+            //去重
+            Set<Music> set=new HashSet<>(recentlyList);
+            recentlyList=new ArrayList<>(set);
             SharedPreferences.Editor editor = sharedPreferences.edit();
             Gson gson = new Gson();
             editor.remove("recentlyList");
@@ -728,12 +944,14 @@ private boolean userchanger=false;
         }
         closTimer();
 
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         unbindService(conn);
+        Log.i("MainActivity","服务解绑");
     }
 
 }

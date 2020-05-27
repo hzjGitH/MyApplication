@@ -50,6 +50,7 @@ public class Search_Fragment extends Fragment {
     RecyclerView tuijian_rec;
     Handler handler;
     Context context;
+    public static boolean gettuijian=true;
     private List<Music> musicList=new ArrayList<>();
   public Handler searHandler=new Handler(new Handler.Callback() {
         @Override
@@ -74,8 +75,10 @@ public class Search_Fragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        if (username!=null&&musicList!=null)
+        if (username!=null&&gettuijian) {
             GetTuiJian();
+            gettuijian=false;
+        }
 
     }
 

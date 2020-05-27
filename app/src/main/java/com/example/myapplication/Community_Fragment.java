@@ -9,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -17,19 +16,19 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.FileProvider;
-import androidx.core.widget.ContentLoadingProgressBar;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -70,12 +69,14 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import static android.app.Activity.RESULT_OK;
 import static com.example.myapplication.MainActivity.JSON;
+import static com.example.myapplication.MainActivity.headurl;
 import static com.example.myapplication.MainActivity.username;
 
-public class Community_Fragment extends Fragment {
+public class Community_Fragment extends Fragment  {
     private RecyclerView community_rec;
     private RecyclerView picture_rec;
     SwipeRefreshLayout refreshLayout;
+    LinearLayout toplayout;
     private EditText content_text;
     private Context context;
     private List<Picture> pictureList = new ArrayList<>();
@@ -84,12 +85,12 @@ public class Community_Fragment extends Fragment {
     private int CAMERA_requestcode = 2;
     private File newFile;
     private Uri contenUri;
-    private int index = 0;//目前图片数量
+  public   static int index = 0;//目前图片数量
     private PictureAdapter pictureAdapter;
-    private List<File> files = new ArrayList<>();
+   public static List<File> files = new ArrayList<>();
     private CommunityAdapter adapter;
     Activity activity;
-    List<String> path;
+    int lastY;
     private  CustomDialog dialog;
   private   SharedPreferences sharedPreferences;
     private  SharedPreferences.Editor editor;
@@ -157,6 +158,7 @@ public class Community_Fragment extends Fragment {
         sharedPreferences= getActivity().getSharedPreferences("communityPublic",Context.MODE_PRIVATE);
         View view = inflater.inflate(R.layout.community_fragment, container, false);
         addview = view.findViewById(R.id.add_picture);
+        toplayout=view.findViewById(R.id.toplayout);
         picture_rec = view.findViewById(R.id.picture_rec);
         refreshLayout=view.findViewById(R.id.refreshlayout);
         refreshLayout.setColorSchemeColors(getResources().getColor(R.color.brown));
@@ -166,7 +168,7 @@ public class Community_Fragment extends Fragment {
         picture_rec.setLayoutManager(manager);
         picture_rec.setAdapter(pictureAdapter);
         community_rec = view.findViewById(R.id.community_recyclerview);
-        ImageView publish = view.findViewById(R.id.publish);
+        LinearLayout publish = view.findViewById(R.id.publish);
         content_text = view.findViewById(R.id.contet_text);
         //content_text.clearFocus();
         dialog=new CustomDialog(context,"数据获取中");
@@ -198,6 +200,7 @@ public class Community_Fragment extends Fragment {
                     map.put("username", username);
                     map.put("content", content);
                     map.put("time", time);
+                    map.put("headurl",headurl);
                     PublicInfo(files, map);
                 }
             }
@@ -258,10 +261,10 @@ public class Community_Fragment extends Fragment {
     //上传图片和参数
     private void PublicInfo(List<File> files, Map<String, String> map) {
 
-        BaseUtil baseUtil = new BaseUtil();
+
         map.put("number", Integer.toString(files.size()));
         for (int i = 0; i < files.size(); i++) {
-            map.put("image" + i, baseUtil.encodeImage(files.get(i).getPath()));
+            map.put("image" + i, BaseUtil.encodeImage(files.get(i).getPath()));
         }
         OkHttpClient okHttpClient = new OkHttpClient();
         Gson gson = new Gson();
@@ -457,7 +460,7 @@ public class Community_Fragment extends Fragment {
         if ((originalWidth == -1) || (originalHeight == -1))
             return null;
 
-        //图片分辨率以480x480为标准
+        //图片分辨率以600x480为标准
         float hh = 600f;//这里设置高度为600f
         float ww = 600f;//这里设置宽度为600f
         //缩放比，由于是固定比例缩放，只用高或者宽其中一个数据进行计算即可
@@ -491,7 +494,7 @@ public class Community_Fragment extends Fragment {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         image.compress(Bitmap.CompressFormat.PNG, 100, baos);//质量压缩方法，这里100表示不压缩，把压缩后的数据存放到baos中
         int options = 100;
-        while (baos.toByteArray().length / 1024 > 100) {  //循环判断如果压缩后图片是否大于100kb,大于继续压缩
+        while (baos.toByteArray().length / 1024 > 1000) {  //循环判断如果压缩后图片是否大于1000kb,大于继续压缩
             baos.reset();//重置baos即清空baos
             //第一个参数 ：图片格式 ，第二个参数： 图片质量，100为最高，0为最差  ，第三个参数：保存压缩后的数据的流
             image.compress(Bitmap.CompressFormat.PNG, options, baos);//这里压缩options，把压缩后的数据存放到baos中

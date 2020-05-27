@@ -9,6 +9,7 @@
     android:textSize="23sp"
     android:textColor="@color/black"
     android:layout_marginStart="10dp"
+    android:layout_marginTop="5dp"
     android:text="歌曲名字"
     android:id="@+id/text"/>
     <View

@@ -23,7 +23,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppThemebrown">
-        <activity android:name=".NewestActivity"></activity>
+        <activity android:name=".MydynamicActivity"></activity>
+        <activity android:name=".NewestActivity" />
         <activity android:name=".AboutMyActivity" />
 
         <receiver

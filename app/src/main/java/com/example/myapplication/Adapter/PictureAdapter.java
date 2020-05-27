@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myapplication.Bean.Picture;
+import com.example.myapplication.Community_Fragment;
 import com.example.myapplication.R;
 
 import java.util.ArrayList;
@@ -26,9 +27,11 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
 
    public class ViewHolder extends RecyclerView.ViewHolder{
             ImageView picture;
+            ImageView delete;
       public ViewHolder(View view){
            super(view);
            picture=view.findViewById(R.id.picture);
+          delete=view.findViewById(R.id.delete);
        }
    }
 
@@ -41,8 +44,17 @@ public class PictureAdapter extends RecyclerView.Adapter<PictureAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(@NonNull PictureAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull PictureAdapter.ViewHolder holder, final int position) {
             holder.picture.setImageBitmap(pictureList.get(position).getBitmap());
+            holder.delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    pictureList.remove(position);
+                    Community_Fragment.files.remove(position);
+                    Community_Fragment.index--;
+                    notifyDataSetChanged();
+                }
+            });
     }
 
     @Override

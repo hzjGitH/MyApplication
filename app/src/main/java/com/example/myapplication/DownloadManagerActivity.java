@@ -52,6 +52,7 @@ public class DownloadManagerActivity extends AppCompatActivity {
         mtitle.add("下载完成");
         fragments.add(new DownManagerFragment(this));
         fragments.add(new FinishDownloadFragment(this));
+
         viewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @NonNull
             @Override
@@ -77,7 +78,7 @@ public class DownloadManagerActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         SharedPreferences sharedPreferences=getSharedPreferences("colors",MODE_PRIVATE);
-        String color= sharedPreferences.getString("newcolor","#fff");
+        String color= sharedPreferences.getString("newcolor","#ffffff");
         getWindow().setStatusBarColor(Color.parseColor(color));
         titlelayout.setBackgroundColor(Color.parseColor(color));
     }

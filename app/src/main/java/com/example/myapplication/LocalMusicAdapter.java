@@ -1,10 +1,15 @@
 package com.example.myapplication;
 
+import android.app.AlertDialog;
+import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.os.Environment;
 import android.os.Message;
+import android.provider.MediaStore;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.RelativeLayout;
@@ -60,7 +65,7 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(@NonNull LocalMusicAdapter.ViewHolder holder,  int position) {
+    public void onBindViewHolder(@NonNull LocalMusicAdapter.ViewHolder holder, final int position) {
    final    Localmusic localmusic=list.get(position);
    final int index=position;
       holder.singer.setText(localmusic.getSinger());
@@ -94,7 +99,38 @@ public class LocalMusicAdapter extends RecyclerView.Adapter<LocalMusicAdapter.Vi
 
             }
         });
+        holder.music_item.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                final AlertDialog.Builder alter=new AlertDialog.Builder(context);
+                alter.setTitle("确定删除该音乐").setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                    File file=new File(localmusic.getPath());
+                   boolean result= file.delete();
+                    if (result){
+                        Toast.makeText(context, "删除成功", Toast.LENGTH_SHORT).show();
+                        list.remove(position);
+                        notifyDataSetChanged();
+                        ContentResolver contentResolver=context.getContentResolver();
+                        contentResolver.delete(MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,"_id="+localmusic.getId(),null);
+                    } else
+                        Toast.makeText(context, "删除失败", Toast.LENGTH_SHORT).show();
+
+                    }
+                }).setNegativeButton("取消", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).show();
+                return false;
+            }
+        });
+
     }
+
+
 
     @Override
     public int getItemCount() {

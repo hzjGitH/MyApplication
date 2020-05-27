@@ -69,6 +69,7 @@ public class DataParser {
                     publicBean.setTime(jsonObject.getString("time"));
                     publicBean.setUsername(jsonObject.getString("username"));
                     publicBean.setPhoto(jsonObject.getString("photo"));
+                    publicBean.setHeadurl(jsonObject.getString("headurl"));
                     PublicList.add(publicBean);
                 }
             }catch (JSONException e){

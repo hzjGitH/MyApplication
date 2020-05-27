@@ -95,7 +95,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
         final Music music = musicList.get(position);
         holder.songname.setText(music.getSongname());
         holder.singer.setText(music.getSinger());
-        holder.position.setText(String.valueOf(position));
+        holder.position.setText(String.valueOf(position+1));
         holder.more_item.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -127,7 +127,12 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
                 Set<Music> set=new HashSet<>(likelist);
                 likelist=new ArrayList<>(set);
                 if (size!=likelist.size()&&username!=null)//成功添加喜欢,基数加2
-                    RecordMap.put(music.getMusictype(),RecordMap.get(music.getMusictype())+2);
+                {
+                    RecordMap.put(music.getMusictype(), RecordMap.get(music.getMusictype()) + 2);
+                    Toast.makeText(context, "添加成功", Toast.LENGTH_SHORT).show();
+                }
+                else if(size!=likelist.size())
+                    Toast.makeText(context,"添加成功",Toast.LENGTH_SHORT).show();
                 else
                     Toast.makeText(context,"已存在",Toast.LENGTH_SHORT).show();
             }
@@ -157,7 +162,7 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
                 try {
                     mediaPlayer.reset();
                     mediaPlayer.setDataSource(Url.url + musicList.get(holder.getPosition()).getPath());
-                    info = musicList.get(holder.getPosition()).getSongname() + "-" + musicList.get(holder.getPosition()).getSinger();
+                    info = musicList.get(holder.getPosition()).getSongname();
                     singer = musicList.get(holder.getPosition()).getSinger();
                     if (username!=null) {
                         midcount = MainActivity.RecordMap.get(musicList.get(holder.getPosition()).getMusictype());
