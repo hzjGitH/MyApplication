@@ -63,7 +63,7 @@
             android:layout_width="150dp"
             android:layout_height="40dp"
             android:id="@+id/repeat_password"
-            android:inputType="numberPassword"
+            android:inputType="textPassword"
             android:hint="再次输入密码"/>
     </LinearLayout>
     <LinearLayout

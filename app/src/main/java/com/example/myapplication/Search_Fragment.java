@@ -47,6 +47,7 @@ public class Search_Fragment extends Fragment {
     private LinearLayout newestlayout;//最新推荐
     private  UltraViewPager ultraViewPager;
     private LinearLayout  dotHorizontal;
+    private LinearLayout scorelayout;
     RecyclerView tuijian_rec;
     Handler handler;
     Context context;
@@ -91,6 +92,7 @@ public class Search_Fragment extends Fragment {
         ranklayout=view.findViewById(R.id.rank_list);
         newestlayout=view.findViewById(R.id.newestlayout);
         ultraViewPager=view.findViewById(R.id.viewpage);
+        scorelayout=view.findViewById(R.id.scorelayout);
         tuijian_rec=view.findViewById(R.id.tuijian_rec);
         dotHorizontal=view.findViewById(R.id.dot_horizontal);
         ViewPagerAdapter viewPagerAdapter =new ViewPagerAdapter(view.getContext());
@@ -111,6 +113,13 @@ public class Search_Fragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent=new Intent(v.getContext(), RecommendActivity.class);
+                startActivity(intent);
+            }
+        });
+        scorelayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent=new Intent(v.getContext(), ScoreRankActivity.class);
                 startActivity(intent);
             }
         });

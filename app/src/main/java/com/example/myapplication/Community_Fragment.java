@@ -21,6 +21,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -79,6 +80,7 @@ public class Community_Fragment extends Fragment  {
     LinearLayout toplayout;
     private EditText content_text;
     private Context context;
+    private CheckBox isprivate;
     private List<Picture> pictureList = new ArrayList<>();
     private ImageView addview;
     private int Album_requsetcode = 1;
@@ -161,6 +163,7 @@ public class Community_Fragment extends Fragment  {
         toplayout=view.findViewById(R.id.toplayout);
         picture_rec = view.findViewById(R.id.picture_rec);
         refreshLayout=view.findViewById(R.id.refreshlayout);
+        isprivate=view.findViewById(R.id.isprivate);
         refreshLayout.setColorSchemeColors(getResources().getColor(R.color.brown));
         pictureAdapter = new PictureAdapter(pictureList);
         LinearLayoutManager manager = new LinearLayoutManager(view.getContext());
@@ -196,11 +199,16 @@ public class Community_Fragment extends Fragment  {
                 } else {
                      dialog=new CustomDialog(context,"发表中..");
                     dialog.show();
+
                     Map<String, String> map = new HashMap<>();
                     map.put("username", username);
                     map.put("content", content);
                     map.put("time", time);
                     map.put("headurl",headurl);
+                    if (isprivate.isChecked())
+                        map.put("private","1");
+                    else
+                        map.put("private","0");
                     PublicInfo(files, map);
                 }
             }

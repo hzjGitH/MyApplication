@@ -24,6 +24,8 @@ public class LoaclMusicUtil {
             name=cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.Audio.Media.DISPLAY_NAME));
             if (name.contains("-")) {
                 String[] str = name.split("-");
+                if (str.length>2)
+                    continue;
                 songname = str[1];
                 localmusic.setSinger(str[0]);
                 int index=songname.indexOf(".");

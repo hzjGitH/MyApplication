@@ -19,6 +19,7 @@ public class DataParser {
 
   private   List<Music> musicList=new ArrayList<>();
     private  List<PublicBean> PublicList=new ArrayList<>();
+
     public List<Music> Parser(Bundle bundle) {
         Gson gson=new Gson();
         if (bundle.get("musicinfo").toString()!=null)

@@ -91,7 +91,7 @@ public class AddDownloadAdapter extends RecyclerView.Adapter<AddDownloadAdapter.
             }
         };
         downloadtimer=new Timer();
-        downloadtimer.schedule(timerTask,0,10);
+        downloadtimer.schedule(timerTask,0,2000);
 
 
 

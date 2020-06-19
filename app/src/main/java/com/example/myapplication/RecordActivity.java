@@ -22,12 +22,16 @@ import android.graphics.drawable.shapes.OvalShape;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.os.Message;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -35,15 +39,31 @@ import android.widget.Toast;
 import com.example.myapplication.Bean.Music;
 import com.example.myapplication.Util.AndroidDownloadManger;
 import com.example.myapplication.Util.AutoMarqueeTextView;
+import com.example.myapplication.Util.RatingBarView;
 import com.example.myapplication.Util.Url;
+import com.google.gson.Gson;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+
+import static com.example.myapplication.MainActivity.JSON;
 import static com.example.myapplication.MainActivity.RecordMap;
 import static com.example.myapplication.MainActivity.info;
 import static com.example.myapplication.MainActivity.likelist;
@@ -66,7 +86,7 @@ public class RecordActivity extends AppCompatActivity {
     private ImageView download;
     private ImageView commentit;
     private ViewPager viewPager;
-    private Music curr_music;
+    private TextView score;
     ToFragment toLyricFragment;
     ToFragment toRecordFragment;
     RecordFragment recordFragment=new RecordFragment();
@@ -75,6 +95,7 @@ public class RecordActivity extends AppCompatActivity {
     String curr;
     String total;
     boolean userchanger;
+    int musicscore;//评分
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(@NonNull Message msg) {
@@ -160,7 +181,7 @@ public class RecordActivity extends AppCompatActivity {
                 if (size!=likelist.size())//成功添加喜欢,基数加2
                 {
                     Toast.makeText(RecordActivity.this, "添加成功", Toast.LENGTH_SHORT).show();
-
+                    addlike.setImageResource(R.drawable.islike);
                     if (username!=null){
                         RecordMap.put(musicServe.CurrentMusic().getMusictype(),RecordMap.get(musicServe.CurrentMusic().getMusictype())+2);
                     }
@@ -226,6 +247,13 @@ public class RecordActivity extends AppCompatActivity {
             }
         });
 
+        score.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ShowPop();
+            }
+        });
+
         Timer timer = new Timer();
         TimerTask task = new TimerTask() {
             @Override
@@ -255,6 +283,7 @@ public class RecordActivity extends AppCompatActivity {
         songname = findViewById(R.id.songname);
         singer = findViewById(R.id.singer);
         back = findViewById(R.id.back);
+        score=findViewById(R.id.score);
         addlike = findViewById(R.id.likeit);
         download = findViewById(R.id.downloadit);
         commentit=findViewById(R.id.commentit);
@@ -283,6 +312,88 @@ public class RecordActivity extends AppCompatActivity {
         });
         viewPager.setCurrentItem(0);
     }
+
+  private void Score(Map<String,String> map){
+      Gson gson=new Gson();
+      RequestBody requestBody = RequestBody.create(JSON, gson.toJson(map));
+      OkHttpClient okHttpClient = new OkHttpClient();
+      Request request = new Request.Builder().post(requestBody)
+              .url(Url.url+"login/servlet/MusicScoreServlet")
+              .build();
+      okHttpClient.newCall(request).enqueue(new Callback() {
+          @Override
+          public void onFailure(Call call, IOException e) {
+
+          }
+
+          @Override
+          public void onResponse(Call call, Response response) throws IOException {
+              Looper.prepare();
+              try {
+                  JSONObject jsonObject=new JSONObject(response.body().string());
+                  String msg=jsonObject.getString("msg");
+                  if (msg.equals("success"))
+                      Toast.makeText(RecordActivity.this, "打分成功", Toast.LENGTH_SHORT).show();
+                  else
+                      Toast.makeText(RecordActivity.this, "打分失败", Toast.LENGTH_SHORT).show();
+              }catch (JSONException e){
+                  e.printStackTrace();
+              }
+
+
+              Looper.loop();
+          }
+      });
+    }
+
+    void ShowPop(){
+
+        View view=View.inflate(this,R.layout.scoreview,null);
+        RatingBarView ratingBarView= view.findViewById(R.id.starview);
+      final   TextView scoretext=view.findViewById(R.id.scoretext);
+        TextView sure=view.findViewById(R.id.sure);
+        ratingBarView.setmClickable(true);
+        ratingBarView.setBindObject(1);
+        int weight = getResources().getDisplayMetrics().widthPixels;
+        int height = getResources().getDisplayMetrics().heightPixels / 4;
+        final PopupWindow popupWindow = new PopupWindow(view, weight, height);
+        popupWindow.setAnimationStyle(R.style.popup_ani);
+        popupWindow.setFocusable(true);
+        ratingBarView.setOnRatingListener(new RatingBarView.OnRatingListener() {
+            @Override
+            public void onRating(Object bindObject, int RatingScore) {
+            String text=RatingScore+"分";
+                scoretext.setText(text);
+                musicscore=RatingScore;
+            }
+        });
+        popupWindow.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                WindowManager.LayoutParams lp = getWindow().getAttributes();
+                lp.alpha = 1.0f;
+                getWindow().setAttributes(lp);
+            }
+        });
+        sure.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                popupWindow.dismiss();
+
+                Map<String,String> map=new HashMap<>();
+                map.put("singer",MainActivity.singer);
+                map.put("songname",info);
+                map.put("score",Integer.toString(musicscore));
+                Score(map);
+                musicscore=0;//初始化
+            }
+        });
+        WindowManager.LayoutParams lp = getWindow().getAttributes();
+        lp.alpha = 0.5f;
+        getWindow().setAttributes(lp);
+        popupWindow.showAtLocation(view, Gravity.CENTER, 0, 0);
+    }
+
 
     @Override
     protected void onResume() {

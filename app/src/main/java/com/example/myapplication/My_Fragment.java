@@ -1,5 +1,6 @@
 package com.example.myapplication;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
@@ -14,19 +15,30 @@ import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import static com.example.myapplication.MainActivity.recentlyList;
+import com.bumptech.glide.Glide;
+import com.example.myapplication.Util.Url;
 
-public class My_Fragment extends Fragment {
+import de.hdodenhof.circleimageview.CircleImageView;
+
+import static com.example.myapplication.MainActivity.bitmap;
+import static com.example.myapplication.MainActivity.headurl;
+import static com.example.myapplication.MainActivity.recentlyList;
+import static com.example.myapplication.MainActivity.username;
+
+public class My_Fragment extends Fragment implements ChangeView {
 
     private static MusicAdapter adapter = null;
     LinearLayout mylike;
     LinearLayout localmusic;
     LinearLayout downmanager;
     Handler handler;//更新用
-
+   private CircleImageView headview;
+   private TextView usertext;
+boolean init=false;
 
     public static Handler myhandle = new Handler(new Handler.Callback() {
         @Override
@@ -50,6 +62,9 @@ public class My_Fragment extends Fragment {
         localmusic = view.findViewById(R.id.localmusic);
         mylike = view.findViewById(R.id.mylike);
         downmanager = view.findViewById(R.id.download);
+        headview=view.findViewById(R.id.headview);
+        usertext=view.findViewById(R.id.username);
+        ImageView reset=view.findViewById(R.id.reset);
         LinearLayoutManager manager = new LinearLayoutManager(view.getContext());
         manager.setOrientation(RecyclerView.VERTICAL);
         rencently_rec.setLayoutManager(manager);
@@ -76,9 +91,32 @@ public class My_Fragment extends Fragment {
                 startActivity(intent);
             }
         });
-
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                recentlyList.clear();
+                adapter.notifyDataSetChanged();
+                handler.sendEmptyMessage(6);
+            }
+        });
+        init=true;
         return view;
     }
 
+    @Override
+    public void Change() {
+        if (username!=null&&init){
+            Glide.with(getActivity()).load(Url.url+headurl).into(headview);
+            usertext.setText(username);
+        }
+    }
 
+    @Override
+    public void onResume() {
+        if (username!=null){
+            Glide.with(getActivity()).load(Url.url+headurl).into(headview);
+            usertext.setText(username);
+        }
+        super.onResume();
+    }
 }

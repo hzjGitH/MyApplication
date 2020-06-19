@@ -144,7 +144,9 @@ public class MusicAdapter extends RecyclerView.Adapter<MusicAdapter.ViewHolder> 
                 AndroidDownloadManger androidDownloadManger = new AndroidDownloadManger(context, Url.url + music.getPath());
                 androidDownloadManger.download();
                 if(username!=null)
-                RecordMap.put(music.getMusictype(),RecordMap.get(music.getMusictype())+1);
+                {
+                    RecordMap.put(music.getMusictype(), RecordMap.get(music.getMusictype()) + 1);
+                }
 
             }
         });

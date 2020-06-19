@@ -92,7 +92,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static final MediaType JSON = MediaType.parse("application/json;charset=utf-8");
     public static String username =null;//用户名字
     public static String id = null;//用户id
-    public static List<Music> recentlyList = new ArrayList<>();
+    public static List<Music> recentlyList = new ArrayList<>();//播放历史记录
     public static List<Music> likelist = new ArrayList<>();
     public static String reply = "";
     public static List<DownloadBean> downloadBeanList = new ArrayList<>();
@@ -125,9 +125,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     TextView after_login;//成功登陆显示用户名字
     CircleImageView headview;
     //对应三个不同的Fragment
-    private Fragment community_Fragment;
-    private Fragment search_Fragment;
-    private Fragment my_Fragment;
+    private Community_Fragment community_Fragment;
+    private Search_Fragment search_Fragment;
+    private My_Fragment my_Fragment;
     LayoutInflater layoutInflater;
     static MusicServe musicServe = new MusicServe();//音乐服务
     MusicConnector conn;
@@ -139,6 +139,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public static String color="";
     SharedPreferences sharedPreferences;
     SharedPreferences record_play;
+    ChangeView changeView;
     Timer timer;
     CustomDialog dialog1;
    public static String headurl;
@@ -188,7 +189,7 @@ private boolean userchanger=false;
                                 RecordMap.put(musictype, 20);
 
                            Search_Fragment.gettuijian=true;
-                          search_Fragment.onResume();
+                           changeView.Change();
                             dialog1.dismiss();
                         } else {
                             Toast.makeText(MainActivity.this, info, Toast.LENGTH_SHORT).show();
@@ -210,7 +211,8 @@ private boolean userchanger=false;
                     }
                     break;
                 case 3:
-                    songinfo.setText(info);
+                    playinfo=info+"-"+singer;
+                    songinfo.setText(playinfo);
                     control_play.setImageResource(R.drawable.play);
                     break;
                 case 4:
@@ -221,6 +223,11 @@ private boolean userchanger=false;
                     break;
                 case 5:
                     headview.setImageBitmap(bitmap);
+                    break;
+                case 6:
+                    SharedPreferences.Editor editor = sharedPreferences.edit();
+                    editor.clear();
+                    editor.apply();
                     break;
 
             }
@@ -288,6 +295,7 @@ private boolean userchanger=false;
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
+                handler.sendEmptyMessage(3);
                 int toal_time;
                 toal_time = mp.getDuration();//毫秒换成秒
                 seekBar.setMax(toal_time);
@@ -497,7 +505,7 @@ private boolean userchanger=false;
         Community.setOnClickListener(this);
         Myself.setOnClickListener(this);
         Search.setOnClickListener(this);
-        setFragment(1);
+        setFragment(0);
         seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -607,6 +615,7 @@ private boolean userchanger=false;
                 Myself.setTextSize(25);
                 if (my_Fragment == null) {
                     my_Fragment = new My_Fragment(handler);
+                    changeView=my_Fragment;
                     fragmentTransaction.add(R.id.container, my_Fragment, "My_Fragment");
 
                 } else {
