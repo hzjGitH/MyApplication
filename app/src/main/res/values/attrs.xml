@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <declare-styleable name="RatioImageView">
+        <attr name="ratio" format="float"/>
+    </declare-styleable>
+
+    <declare-styleable name="NineGridLayout">
+        <attr name="sapcing" format="dimension"/>
+    </declare-styleable>
+    <declare-styleable name="RatingBarView">
+        <attr name="starImageSize" format="dimension" />
+        <attr name="starCount" format="integer" />
+        <attr name="starEmpty" format="reference" />
+        <attr name="starFill" format="reference" />
+
+    </declare-styleable>
+</resources>
